@@ -1,0 +1,94 @@
+{
+	"bomFormat": "CycloneDX",
+	"specVersion": "1.5",
+	"serialNumber": "urn:uuid:8c932921-e6af-433a-9fda-9ae3cc774280",
+	"version": 1,
+	"metadata": {
+		"timestamp": "2026-03-03T13:59:51Z",
+		"tools": [
+			{
+				"vendor": "Black Duck",
+				"name": "Hub",
+				"version": "2025.10.0"
+			},
+			{
+				"vendor": "CycloneDX",
+				"name": "cyclonedx-core-java",
+				"version": "5.0.5"
+			}
+		],
+		"authors": [
+			{
+				"name": "STMicroelectronics NV"
+			}
+		],
+		"component": {
+			"type": "application",
+			"bom-ref": "d5fe6c47-d6e6-484e-bd32-5c3081d2d03b",
+			"supplier": {
+				"name": ""
+			},
+			"name": "STFCF",
+			"version": "2.0.0",
+			"licenses": [
+				{
+					"license": {
+						"id": "Apache-2.0"
+					}
+				}
+			],
+			"pedigree": {
+				"notes": "Apache License 2.0"
+			},
+			"properties": [
+				{
+					"name": "BlackDuck-Component",
+					"value": "5df0a732-a807-423b-b99c-0e6d3452d473"
+				},
+				{
+					"name": "BlackDuck-ComponentVersion",
+					"value": "d5fe6c47-d6e6-484e-bd32-5c3081d2d03b"
+				}
+			]
+		}
+	},
+	"components": [
+		{
+			"type": "library",
+			"bom-ref": "55b560c8-757d-46cb-a4a7-fca6339db3cb",
+			"supplier": {
+				"name": ""
+			},
+			"name": "STFCF",
+			"version": "2.0.0",
+			"licenses": [
+				{
+					"license": {
+						"id": "Apache-2.0"
+					}
+				}
+			],
+			"pedigree": {
+				"notes": "Apache License 2.0"
+			},
+			"properties": [
+				{
+					"name": "BlackDuck-Component",
+					"value": "95d14e4d-027b-4f12-8a40-7be4569d43de"
+				},
+				{
+					"name": "BlackDuck-ComponentVersion",
+					"value": "55b560c8-757d-46cb-a4a7-fca6339db3cb"
+				}
+			]
+		}
+	],
+	"dependencies": [
+		{
+			"ref": "d5fe6c47-d6e6-484e-bd32-5c3081d2d03b",
+			"dependsOn": [
+				"55b560c8-757d-46cb-a4a7-fca6339db3cb"
+			]
+		}
+	]
+}

@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stm32="https://developer.st.com/schemas/stm32cube/1.0.0" schemaVersion="1.7.55" xsi:noNamespaceSchemaLocation="PACK.xsd" xsi:schemaLocation="https://developer.st.com/schemas/stm32cube/1.0.0 stm32cube.xsd" Dvendor="STMicroelectronics:13" Dname="STM32*">
+  <vendor>STMicroelectronics</vendor>
+  <name>stfcf</name>
+  <environments>
+    <environment name="STM32Cube">
+      <stm32:pack type="MW" friendlyName="stfcf" shortDesc="STM32 Flexible Crypto Framework middleware">
+        <relocation-info parent="middleware" layer="" element=""/>
+      </stm32:pack>
+    </environment>
+  </environments>
+  <description overview="README.md">STFCF SW Pack</description>
+  <ECCN>
+    <ECCN-EU>NEC</ECCN-EU>
+    <ECCN-US>EAR99</ECCN-US>
+  </ECCN>
+  <changelogs>
+    <changelog id="Release Notes" name="Release_Notes.html"/>
+  </changelogs>
+  <url>https://developer.st.com/st-pack-server/api/v1/pack/</url>
+  <repository type="git">https://github.com/STMicroelectronics/stm32-mw-stfcf/tree/hal2</repository>
+  <supportContact/>
+  <releases>
+    <release version="2.0.0" date="2026-03-13">
+      First official version of STFCF (STM32 Flexible Crypto Framework) middleware pack.
+    </release>
+  </releases>
+  <license>LICENSE.html</license>
+  <taxonomy>
+    <description Cclass="Security" Cgroup="STFCF">STM32 Flexible Crypto Framework (STFCF) by STMicroelectronics</description>
+  </taxonomy>
+  <keywords>
+    <keyword>STMicroelectronics</keyword>
+    <keyword>ST</keyword>
+    <keyword>STM32</keyword>
+    <keyword>STFCF</keyword>
+    <keyword>Security</keyword>
+    <keyword>Cryptography</keyword>
+    <keyword>PSA</keyword>
+    <keyword>MbedTLS</keyword>
+    <keyword>STCryptoLib</keyword>
+    <keyword>Flexible</keyword>
+  </keywords>
+  <!-- Conditions -->
+  <conditions>
+    <condition id="PSA interface conditions">
+      <description>Ensure PSA API are satisfied</description>
+      <require Cclass="Security" Cgroup="MbedTLS" Csub="PSA API"/>
+      <!-- this is selected by default and it creates a conflict with config component -->
+      <!-- in case we working without config component this must be exist by default (gpdsc generation) -->
+      <!-- <accept Cclass="Security" Cgroup="STFCF" Csub="Core"/> -->
+    </condition>
+    <condition id="Mbed TLS Alt STCryptoLib condition">
+      <description>Requires STCryptoLib component</description>
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt Common"/>
+      <require Cclass="Security" Cgroup="STCryptoLib" Csub="CMOX API"/>
+    </condition>
+    <condition id="Mbed TLS Alt HAL condition">
+      <description>Requires HAL driver component(s)</description>
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt Common"/>
+      <accept Cclass="Device" Cgroup="STM32 HAL" Csub="RNG"/>
+      <accept Cclass="Device" Cgroup="STM32 HAL" Csub="AES"/>
+      <accept Cclass="Device" Cgroup="STM32 HAL" Csub="CRYP"/>
+      <accept Cclass="Device" Cgroup="STM32 HAL" Csub="HASH"/>
+      <accept Cclass="Device" Cgroup="STM32 HAL" Csub="PKA"/>
+    </condition>
+    <condition id="KWE condition">
+      <description>Requires CCB HAL driver component</description>
+      <require Cclass="Device" Cgroup="STM32 HAL" Csub="CCB"/>
+    </condition>
+    <condition id="STFCF config condition">
+      <description>STFCF possible implementations</description>
+      <deny Cclass="Security" Cgroup="STFCF" Csub="Core"/>
+      <require Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    </condition>
+    <condition id="No STFCF generator">
+      <description>STFCF without config</description>
+      <deny Cclass="Security" Cgroup="STM32CubeMX2 Config" Csub="STFCF"/>
+    </condition>
+    <!-- MbedTLS Alt Common conditions -->
+    <condition id="alt aes condition">
+      <description>Enable aes_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt ccm condition">
+      <description>Enable ccm_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    </condition>
+    <condition id="alt chachapoly condition">
+      <description>Enable chachapoly_alt implementation</description>
+      <!-- Works only with ALT STCryptoLib -->
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    </condition>
+    <condition id="alt cmac condition">
+      <description>Enable cmac_alt implementation</description>
+      <!-- Works only with ALT STCryptoLib -->
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    </condition>
+    <condition id="alt drbg condition">
+      <description>Enable drbg_alt implementation</description>
+      <!-- Works only with ALT STCryptoLib -->
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    </condition>
+    <condition id="alt entropy_hw condition">
+      <description>Enable entropy_hw_alt implementation</description>
+      <!-- Works only with ALT HAL -->
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt ecp condition">
+      <description>Enable ecp_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt gcm condition">
+      <description>Enable aes_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt rsa condition">
+      <description>Enable rsa_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt sha1 condition">
+      <description>Enable sha1_alt implementation</description>
+      <!-- Works only with ALT HAL -->
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt sha256 condition">
+      <description>Enable sha256_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+    <condition id="alt sha512 condition">
+      <description>Enable sha512_alt implementation</description>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    </condition>
+  </conditions>
+  <generators>
+    <!-- This generator is launched if any component referencing this generator by 'id' is selected and the specified <gpdsc> file does not exist -->
+    <generator id="stfcf_mx2codegen">
+      <description>STM32Cube Generator for STM32 Flexible Crypto Framework</description>
+      <exe>
+        <command host="win">.config/gen_code.bat</command>
+        <command host="linux">.config/gen_code.sh</command>
+        <command host="mac">.config/gen_code.sh</command>
+        <!-- $S = Device Family Pack base folder -->
+        <argument>$S</argument>
+        <!-- D = Device (Dname/Dvariant as configured by environment) -->
+        <argument>$D</argument>
+        <!-- SW Project folder path (as configured by environment) -->
+        <argument>$P</argument>
+        <!-- SW Project .cprj path -->
+        <argument>#P</argument>
+        <!-- #name of the gpdsc template contained in this PACK (Could follow this pattern packVendor.packName.gpdsc.hbs) -->
+        <argument>STMicroelectronics.stfcf_template.gpdsc.hbs</argument>
+        <!-- Generator Id to be passed as an argument to the bootstrap script-->
+        <argument>stfcf_mx2codegen</argument>
+        <!-- Absolute path to the Generator Input file-->
+        <argument>$G</argument>
+        <!-- Flag to indicate that this Generator is dry-run capable -->
+        <argument mode="dry-run">--dry-run</argument>
+      </exe>
+      <!-- Default Target folder for the generated gpdsc file -->
+      <gpdsc name="$P/STMicroelectronics.stfcf.gpdsc"/>
+    </generator>
+  </generators>
+  <!-- Components definition -->
+  <components>
+    <!-- Mbed TLS Configuration -->
+    <component generator="stfcf_mx2codegen" Cclass="Security" Cgroup="STM32CubeMX2 Config" Csub="STFCF" Cversion="1.0.0" condition="STFCF config condition">
+      <description>STM32CubeMX2 Configuration and Code Generation for the STM32 Flexible Crypto Framework (STFCF) middleware</description>
+      <Pre_Include_Global_h>
+/* Enabling global STFCF configuration file */
+#define MBEDTLS_CONFIG_FILE "mx_stfcf_config.h"
+      </Pre_Include_Global_h>
+      <environments>
+        <environment name="STM32Cube">
+        </environment>
+      </environments>
+      <files>
+        <file category="genAsset" name=".config/gen_code.bat"/>
+        <file category="genAsset" name=".config/gen_code.sh"/>
+        <file category="genAsset" name=".config/STMicroelectronics.stfcf_template.gpdsc.hbs"/>
+        <file category="genAsset" name=".config/stfcf_config_parameters.json"/>
+        <file category="genAsset" name=".config/template/mx_mbedtls_alt_config_template.h.hbs"/>
+        <file category="genAsset" name=".config/template/mx_mbedtls_config_template.h.hbs"/>
+        <file category="genAsset" name=".config/template/mx_stfcf_config_template.h.hbs"/>
+        <file category="genAsset" name=".config/template/mx_kwe_config_template.h.hbs"/>
+        <file category="genAsset" name=".config/template/partials/LICENSE_partial.hbs"/>
+        <file category="genAsset" name=".config/template/license/mx_stfcf_license_template.md.hbs"/>
+        <file category="genAsset" name=".config/template/helpers/stfcf_helpers.js"/>
+        <file category="genAsset" name=".config/template/hooks/mapping_hook.js"/>
+      </files>
+    </component>
+    <!-- PSA crypto interface to Mbed TLS middleware -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="PSA API" Cversion="1.0.0" condition="PSA interface conditions">
+      <description>High level Interface, Platform Security Architecture, as entry point; Link directly the PSA API of Mbed TLS</description>
+      <files>
+        <file category="doc" name="LICENSE.md"/>
+        <file category="doc" name="LICENSE.html"/>
+        <file category="doc" name="README.md"/>
+        <file category="doc" name="Release_Notes.html"/>
+        <file category="doc" name="Release_Notes.md"/>
+        <file category="doc" name="SW_Security_Level.md"/>
+      </files>
+    </component>
+    <!-- PSA crypto interface to Mbed TLS middleware -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="Core" Cversion="1.0.0" condition="No STFCF generator">
+      <description>Templates </description>
+      <files>
+        <file category="header" name="templates/mx_mbedtls_config.h" attr="config" version="0.2.0"/>
+        <file category="header" name="templates/mx_mbedtls_alt_config.h" attr="config" version="0.2.0"/>
+        <file category="header" name="templates/mx_stfcf_config.h" attr="config" version="0.2.0"/>
+        <file category="header" name="templates/mx_kwe_config.h" attr="config" version="0.2.0"/>
+      </files>
+    </component>
+    <!-- Mbed TLS ALT Common -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt Common" Cversion="1.0.0">
+      <description>Router for the Mbed TLS and STMicroelectronics' alternatives according to the configuration choices</description>
+      <files>
+        <file category="include" name="mbedtls_alt/include/common/"/>
+        <file category="header" name="mbedtls_alt/include/common/aes_alt.h" condition="alt aes condition"/>
+        <file category="header" name="mbedtls_alt/include/common/ccm_alt.h" condition="alt ccm condition"/>
+        <file category="header" name="mbedtls_alt/include/common/chachapoly_alt.h" condition="alt chachapoly condition"/>
+        <file category="header" name="mbedtls_alt/include/common/cmac_alt.h" condition="alt cmac condition"/>
+        <file category="header" name="mbedtls_alt/include/common/drbg_alt.h" condition="alt drbg condition"/>
+        <file category="header" name="mbedtls_alt/include/common/ecp_alt.h" condition="alt ecp condition"/>
+        <file category="header" name="mbedtls_alt/include/common/entropy_hardware_alt.h" condition="alt entropy_hw condition"/>
+        <file category="header" name="mbedtls_alt/include/common/gcm_alt.h" condition="alt gcm condition"/>
+        <file category="header" name="mbedtls_alt/include/common/rsa_alt.h" condition="alt rsa condition"/>
+        <file category="header" name="mbedtls_alt/include/common/sha1_alt.h" condition="alt sha1 condition"/>
+        <file category="header" name="mbedtls_alt/include/common/sha256_alt.h" condition="alt sha256 condition"/>
+        <file category="header" name="mbedtls_alt/include/common/sha512_alt.h" condition="alt sha512 condition"/>
+      </files>
+    </component>
+    <!-- Mbed TLS ALT STCryptoLib -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib" Cversion="1.0.0" condition="Mbed TLS Alt STCryptoLib condition">
+      <description>Mbed TLS alternative implementation thanks STM32 Cryptographic library (STCryptoLib)</description>
+      <files>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_aes_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_chachapoly_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_ccm_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_cmac_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_drbg_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_gcm_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_rsa_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_sha256_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/stcryptolib/stcryptolib_sha512_alt.h"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/aes_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/ccm_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/chachapoly_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/cmac_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/drbg_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/ecdh_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/ecdsa_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/gcm_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/rsa_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/sha256_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/stcryptolib/sha512_alt.c"/>
+      </files>
+    </component>
+    <!-- Mbed TLS ALT HAL -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL" Cversion="1.0.0" condition="Mbed TLS Alt HAL condition">
+      <description>Mbed TLS alternative implementation thanks hardware acceleration (HAL API)</description>
+      <files>
+        <file category="header" name="mbedtls_alt/include/hal/hal_aes_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_ccm_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_ecp_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_entropy_hardware_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_gcm_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_rsa_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_sha1_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_sha256_alt.h"/>
+        <file category="header" name="mbedtls_alt/include/hal/hal_sha512_alt.h"/>
+        <file category="source" name="mbedtls_alt/source/hal/aes_aes_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/aes_ccm_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/cryp_aes_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/cryp_ccm_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/cryp_gcm_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/ecdh_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/ecdsa_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/ecp_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/ecp_curves_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/entropy_hardware_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/aes_gcm_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/rsa_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/sha1_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/sha256_alt.c"/>
+        <file category="source" name="mbedtls_alt/source/hal/sha512_alt.c"/>
+      </files>
+    </component>
+    <!-- KWE -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="KWE" Cversion="1.0.0" condition="KWE condition">
+      <description>Key Wrapping Engine</description>
+      <files>
+        <file category="header" name="kwe/core/kwe_core.h"/>
+        <file category="source" name="kwe/core/kwe_core.c"/>
+        <file category="header" name="kwe/core/kwe_types.h"/>
+        <file category="header" name="kwe/interface/kwe_psa_driver_interface.h"/>
+        <file category="source" name="kwe/interface/kwe_psa_driver_interface.c"/>
+        <file category="header" name="kwe/interface/kwe_psa_driver_key_management.h"/>
+        <file category="source" name="kwe/interface/kwe_psa_driver_key_management.c"/>
+        <file category="source" name="kwe/README.md"/>
+      </files>
+    </component>
+  </components>
+</package>
