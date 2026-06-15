@@ -92,6 +92,7 @@ int mbedtls_ccm_setkey(mbedtls_ccm_context *ctx,
                        const unsigned char *key,
                        unsigned int keybits)
 {
+  (void) cipher;
   uint32_t  i;
   int ret = 0;
   if (keybits == HAL_AES_KEY_SIZE_192)
@@ -479,6 +480,9 @@ int mbedtls_ccm_finish(mbedtls_ccm_context *ctx,
                        unsigned char *output, size_t output_size, size_t *ciphertext_length,
                        unsigned char *tag, size_t tag_len)
 {
+  (void) output;
+  (void) output_size;
+  (void) ciphertext_length;
   __ALIGN_BEGIN uint8_t mac[16]      __ALIGN_END;  /* temporary mac */
 
   if ((ctx->state & CCM_STATE__ERROR) != 0U)

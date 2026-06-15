@@ -39,10 +39,12 @@
 static hal_ccb_handle_t *pCCB = NULL;
 #endif /* KWE_ASYMMETRIC_KEY_WRAP_ENABLED */
 
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 /**
   * AES/CRYP handler to set SAES
   */
 static hal_aes_handle_t *pSAES = NULL;
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
 
 #if defined(USE_HAL_AES_CCM_ALGO) && (USE_HAL_AES_CCM_ALGO == 1)
 static hal_aes_gcm_config_t conf_gcm = {0};
@@ -54,7 +56,9 @@ static hal_aes_ccm_config_t conf_ccm = {0};
   */
 
 /* Private variables ---------------------------------------------------------*/
+#if defined(KWE_ASYMMETRIC_KEY_WRAP_ENABLED)
 static uint8_t pool_buffer[512] = {0};
+#endif /* KWE_ASYMMETRIC_KEY_WRAP_ENABLED */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private macros ------------------------------------------------------------*/
@@ -464,7 +468,7 @@ kwe_status_t KWE_EcdhKeyAgreement(
 {
   pCCB = mx_stfcf_kwe_ccb_gethandle();
   kwe_status_t status = KWE_ERROR;
-
+  (void) shared_secret_size;
   hal_ccb_ecc_mul_curve_param_t ecdh_param;
   hal_ccb_ecc_mul_key_blob_t ecdh_blob;
   hal_ccb_ecc_point_t ecdh_peer_pubkey;
@@ -665,7 +669,7 @@ kwe_status_t KWE_RsaModularExp(
   * publication 197 "Advanced encryption standard (AES)"
   * (November 2001)
   */
-
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 /**
   * @brief  A function that wrap AES key using KWE hardware
   *         accelerator.
@@ -1109,7 +1113,7 @@ kwe_status_t KWE_AeadDecrypt(
     p_iv[3] = 0x00000002;
     conf_gcm.p_init_vect = p_iv;
     /* Additional authentication data limited to 2^64 bits */
-    conf_gcm.p_header = (uint32_t *)p_additional_data;  /* p_aad; */
+    conf_gcm.p_header = (uint32_t *)p_additional_data;  /* p_aad */
     conf_gcm.header_size_byte = additional_data_length;
 
     if (HAL_AES_GCM_GMAC_SetConfig(pSAES, &conf_gcm) != HAL_OK)
@@ -1314,7 +1318,7 @@ kwe_status_t KWE_Encrypt(
   {
     return status;
   }
-  if (HAL_AES_Encrypt(pSAES, (uint32_t *)p_plaintext, plaintext_length, (uint32_t *)p_ciphertext,
+  if (HAL_AES_Encrypt(pSAES, (uint32_t *)p_plaintext, (uint16_t)plaintext_length, (uint32_t *)p_ciphertext,
                       KWE_TIMEOUT_VALUE) != HAL_OK)
   {
     return status;
@@ -1346,6 +1350,7 @@ kwe_status_t KWE_Decrypt(
   const uint8_t *p_ciphertext, size_t ciphertext_length,
   uint8_t *p_plaintext, size_t plaintext_size, size_t *p_plaintext_length)
 {
+  (void) plaintext_size;
   pSAES = mx_stfcf_kwe_saes_gethandle();
   kwe_status_t status = KWE_ERROR;
   uint32_t init_vect[4] = {0};
@@ -1381,7 +1386,8 @@ kwe_status_t KWE_Decrypt(
     {
       return status;
     }
-    if (HAL_AES_Decrypt(pSAES, (uint32_t *)(p_ciphertext + KWE_IV_MAX_SIZE), ciphertext_length - KWE_IV_MAX_SIZE,
+    if (HAL_AES_Decrypt(pSAES, (uint32_t *)(p_ciphertext + KWE_IV_MAX_SIZE),
+                        (uint16_t)ciphertext_length - (uint16_t)KWE_IV_MAX_SIZE,
                         (uint32_t *)p_plaintext, KWE_TIMEOUT_VALUE) != HAL_OK)
     {
       return status;
@@ -1401,7 +1407,7 @@ kwe_status_t KWE_Decrypt(
       return status;
     }
 
-    if (HAL_AES_Decrypt(pSAES, (uint32_t *)p_ciphertext, ciphertext_length, (uint32_t *)p_plaintext,
+    if (HAL_AES_Decrypt(pSAES, (uint32_t *)p_ciphertext, (uint16_t)ciphertext_length, (uint32_t *)p_plaintext,
                         KWE_TIMEOUT_VALUE) != HAL_OK)
     {
       return status;
@@ -1414,7 +1420,7 @@ kwe_status_t KWE_Decrypt(
 
   return status;
 }
-
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
 /**
   * @}
   */

@@ -244,7 +244,7 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     goto exit;
   }
 
-  k_size = grp->nbits / 8U ;
+  k_size = (grp->nbits + 7U) / 8U ;
 
   p_k_binary = mbedtls_calloc(k_size, sizeof(uint8_t));
   if (p_k_binary == NULL)
@@ -272,7 +272,10 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
   /* Init the STCryptoLib */
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
+  {
+    return -1;
+  }
 
   cmox_ecc_construct(&ecc_ctx, CMOX_MATH_FUNCS_FAST, p_working_buffer,
                      buff_size);
@@ -405,17 +408,20 @@ int mbedtls_ecdsa_verify(mbedtls_ecp_group *grp, const unsigned char *buf,
   /* Init the STCryptoLib */
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
+  {
+    return -1;
+  }
 
   cmox_ecc_construct(&ecc_ctx, CMOX_MATH_FUNCS_FAST, p_working_buffer,
                      buff_size);
 
-  p_public_key = mbedtls_calloc(2U * order_size + 1U, sizeof(uint8_t));
+  p_public_key = mbedtls_calloc((2U * order_size) + 1U, sizeof(uint8_t));
   if (p_public_key == NULL)
   {
     return MBEDTLS_ERR_MPI_ALLOC_FAILED;
   }
-  buffer_size = 2U * order_size + 1U;
+  buffer_size = (2U * order_size) + 1U;
   /* Convert public key to an array */
   ret = mbedtls_ecp_point_write_binary(grp, Q, MBEDTLS_ECP_PF_UNCOMPRESSED,
                                        &public_key_size, p_public_key,

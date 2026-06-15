@@ -134,13 +134,13 @@ static void mbedtls_zeroize(void *value, size_t size)
 
 void mbedtls_aes_init(mbedtls_aes_context *ctx)
 {
-  (void) memset(ctx, 0, sizeof(mbedtls_aes_context));
+  (void)memset(ctx, 0, sizeof(mbedtls_aes_context));
   /* Init the STCryptoLib */
   cmox_init_arg_t init_arg;
 
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  (void)cmox_initialize(&init_arg);
 }
 
 void mbedtls_aes_free(mbedtls_aes_context *ctx)
@@ -201,6 +201,7 @@ static int mbedtls_aes_xts_decode_keys(const unsigned char *key,
       break;
     default:
       return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
+      break;
   }
 
   *key1bits = half_keybits;
@@ -623,8 +624,10 @@ int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
         }
       }
 
-      iv[n] = *output++ = (unsigned char)(iv[n] ^ *input++);
-
+      iv[n] = (unsigned char)(iv[n] ^ *input);
+      *output = iv[n];
+      input++;
+      output++;
       n = (n + 1U) & 0x0FU;
     }
   }
@@ -648,7 +651,7 @@ int mbedtls_aes_crypt_cfb8(mbedtls_aes_context *ctx,
   unsigned char c;
   unsigned char ov[17];
 
-  while (length > 0)
+  while (length > 0U)
   {
     length--;
     (void) memcpy(ov, iv, 16);

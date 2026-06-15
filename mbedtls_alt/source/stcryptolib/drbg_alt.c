@@ -27,9 +27,9 @@
 #define NONE_SIZE 16
 #define PERSONALIZATION_SIZE 32
 /* Global variables ----------------------------------------------------------*/
-uint8_t Entropy[ENTROPY_SIZE] = {0};
-uint8_t Nonce[NONE_SIZE] = {0};
-uint8_t Personalization[PERSONALIZATION_SIZE] = {0};
+static uint8_t Entropy[ENTROPY_SIZE] = {0};
+static uint8_t Nonce[NONE_SIZE] = {0};
+static uint8_t Personalization[PERSONALIZATION_SIZE] = {0};
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private defines -----------------------------------------------------------*/
@@ -40,7 +40,7 @@ static uint8_t init_ctx = 0;
 #endif /* MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG */
 static cmox_drbg_handle_t *drbg_ctx;         /*!< drbg ctx */
 static cmox_ctr_drbg_handle_t ctr_drbg_ctx;  /*!< ctr drbg ctx */
-static hal_rng_handle_t *pENTROPY = {0};
+static hal_rng_handle_t *pENTROPY = NULL;
 /* Private function prototypes -----------------------------------------------*/
 /* Functions Definition ------------------------------------------------------*/
 
@@ -63,7 +63,10 @@ int32_t DRBG_Init(void)
 
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
+  {
+    return -1;
+  }
   pENTROPY = mx_stfcf_mbedtls_alt_hal_rng_gethandle();
 
   if (HAL_RNG_GenerateRandomNumber(pENTROPY, (uint32_t *)Entropy, ENTROPY_SIZE / 4, RNG_GENERATION_TIMEOUT) != HAL_OK)

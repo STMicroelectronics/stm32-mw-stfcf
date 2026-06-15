@@ -73,7 +73,7 @@ void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
   cmox_init_arg_t init_arg;
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  (void)cmox_initialize(&init_arg);
 
 }
 
@@ -131,6 +131,8 @@ int mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
 
 int mbedtls_internal_sha256_process(mbedtls_sha256_context *ctx, const unsigned char data[64])
 {
+  (void) ctx;
+  (void) data;
   return MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
 }
 

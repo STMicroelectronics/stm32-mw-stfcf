@@ -1,0 +1,190 @@
+{{assign "jsonFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "STFCF"}')~}}
+{{assign 'data' (@root.SWConfigurationAPI.getInstancesConfiguration @root.jsonFilter)~}}
+{{assign "instance_0" @root.data.[0]~}}
+{{assign "configs" @root.instance_0.settings.parameters ~}}
+{{assign 'kwe_hal_used_components' (@root.SWProjectAPI.getUsedComponents 'asObject' cgroup='STM32CubeMX2 Config')~}}
+
+{{assign 'Instance_ccb' (@root.peripheralsResourceManagerAPI.getSoftwareInstancesBoundToPeripheral "CCB")~}}
+{{log "Instance_CCB_log" @root.Instance_ccb~}}
+
+{{assign 'Instance_saes' (@root.peripheralsResourceManagerAPI.getSoftwareInstancesBoundToPeripheral "SAES")~}}
+{{log "Instance_SAES_log" @root.Instance_saes~}}
+
+/**
+  ******************************************************************************
+  * @file    mx_kwe_config.h
+  * @brief   Config file for the PSA Key Wrap Engine driver
+  *          This file must be copied to the application folder and included
+  *          by mx_stfcf_config.h
+  {{!-- ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */ --}}
+{{> LICENSE}}
+
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef MX_KWE_CONFIG_H
+#define MX_KWE_CONFIG_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Includes ------------------------------------------------------------------*/
+#include "stm32_hal.h"
+
+/** @addtogroup KWE_MODULES
+  * @{
+  */
+
+/** @addtogroup CONFIG
+  * @brief
+  * @{
+  */
+
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+{{#if (helper_stfcf_mbedtlsconfig_kwe_enabled @root.configs)}}
+/* Key Wrap Engine PSA Opaque Driver Location */
+#define PSA_CRYPTO_KWE_DRIVER_LOCATION ((psa_key_location_t)0x00800001)
+{{/if}}
+/* Exported variables --------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+{{#if (helper_stfcf_mbedtlsconfig_kwe_enabled @root.configs)}}
+{{#each @root.kwe_hal_used_components~}}
+{{#if (eq csub 'CCB')~}}
+  {{assign "jsonFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "CCB"}')~}}
+  {{assign 'data' (@root.SWConfigurationAPI.getSwInstancesConfiguration @root.jsonFilter)~}}
+  {{assign "ccb_name" @root.data.[0].name~}}
+  {{log "kwe_ccb_data_log" @root.data.[0]~}}
+  {{assign "ccb_labels" @root.data.[0].info.labels~}}
+  {{log "kwe_ccb_labels_log" @root.ccb_labels~}}
+
+  {{#if (gt (length @root.Instance_ccb) 0)}}
+    {{#if (gt (length @root.ccb_labels) 0)}}
+#define mx_stfcf_kwe_ccb_gethandle {{@root.ccb_labels.[0]}}_gethandle
+    {{else~}}
+#define mx_stfcf_kwe_ccb_gethandle mx_ccb_gethandle
+    {{/if~}}
+  {{/if~}}
+
+{{/if~}}
+
+{{#if (eq csub 'AES')~}}
+  {{assign "jsonFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "AES"}')~}}
+  {{assign 'data' (@root.SWConfigurationAPI.getSwInstancesConfiguration @root.jsonFilter)~}}
+  {{log "kwe_saes_data_log" @root.data~}}
+  {{assign "saes_name" @root.data.[0].name~}}
+  {{assign "saes_labels" @root.data.[0].info.labels~}}
+  {{log "kwe_saes_labels_log" @root.saes_labels~}}
+
+  {{#if (gt (length @root.Instance_saes) 0)}}
+    {{#if (gt (length @root.saes_labels) 0)}}
+#define mx_stfcf_kwe_saes_gethandle {{@root.saes_labels.[0]}}_gethandle
+    {{else~}}
+#define mx_stfcf_kwe_saes_gethandle mx_saes_gethandle
+    {{/if~}}
+  {{/if~}}
+
+{{/if}}
+{{/each}}
+{{/if}}
+
+/* Exported functions ------------------------------------------------------- */
+
+/**
+  * \def KWE_DRIVER_ENABLED
+  *
+  * Enables STM32 KWE Driver core an implementation to use ST hardware crypto
+  * accelerator that manages asymmetric and symmetric keys in wrapped forme.
+  *
+  * Uncomment a macro to enable the STM32 KWE PSA Driver core for ST key
+  * wrap engine.
+  *
+  * Requires HAL_MODULE_ENABLED.
+  */
+{{helper_stfcf_mbedtlsconfig_switch @root.configs "KWE_DRIVER_ENABLED"}}
+
+/**
+  * \def PSA_KWE_DRIVER_ENABLED
+  *
+  * Enables STM32 KWE PSA Driver Interface an implementation of PSA opaque
+  * driver for the ST hardware crypto accelerator that manages
+  * asymmetric and symmetric keys in wrapped forme.
+  *
+  * Uncomment a macro to enable the STM32 KWE PSA Driver Interface for ST
+  * key wrap engine.
+  *
+  * Requires KWE_DRIVER_ENABLED.
+  */
+{{helper_stfcf_mbedtlsconfig_switch @root.configs "PSA_KWE_DRIVER_ENABLED"}}
+
+/**
+  * \def KWE_SYMMETRIC_KEY_WRAP_ENABLED
+  *
+  * Enables STM32 KWE PSA Driver that manages symmetric keys in wrapped forme.
+  *
+  * Uncomment a macro to enable symmetric key wrap operations on STM32 key
+  * key wrap engine.
+  *
+  * Requires PSA_KWE_DRIVER_ENABLED.
+  */
+{{helper_stfcf_mbedtlsconfig_switch @root.configs "KWE_SYMMETRIC_KEY_WRAP_ENABLED"}}
+
+/**
+  * \def KWE_ASYMMETRIC_KEY_WRAP_ENABLED
+  *
+  * Enables STM32 KWE PSA Driver that manages asymmetric keys in wrapped forme.
+  *
+  * Uncomment a macro to enable asymmetric key wrap operations on STM32 key
+  * key wrap engine.
+  *
+  * Requires PSA_KWE_DRIVER_ENABLED.
+  */
+{{helper_stfcf_mbedtlsconfig_switch @root.configs "KWE_ASYMMETRIC_KEY_WRAP_ENABLED"}}
+
+/**
+  * \def KWE_USE_CBC_TO_WRAP_SYMMETRIC_KEY
+  *
+  * Enables symmetric key wrap using AES-CBC algorithm, by default symmetric
+  * keys are wrapped using AES-ECB algorithm.
+  *
+  * Uncomment a macro to enable symmetric key wrap operations using AES-CBC
+  * algorithm.
+  *
+  * Requires PSA_KWE_DRIVER_ENABLED.
+  */
+{{helper_stfcf_mbedtlsconfig_switch @root.configs "KWE_USE_CBC_TO_WRAP_SYMMETRIC_KEY"}}
+
+/**
+  * \def KWE_ECP_SHORT_WEIERSTRASS_ENABLED
+  *
+  * Enables Short Weierstrass elliptic curve forme.
+  *
+  * Uncomment a macro to enable ECC public key export in Short Weierstrass
+  * elliptic curve forme.
+  *
+  * Requires PSA_KWE_DRIVER_ENABLED.
+  */
+{{helper_stfcf_mbedtlsconfig_switch @root.configs "KWE_ECP_SHORT_WEIERSTRASS_ENABLED"}}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* MX_KWE_CONFIG_H */
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */

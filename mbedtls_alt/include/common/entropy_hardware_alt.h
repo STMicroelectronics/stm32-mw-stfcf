@@ -35,9 +35,7 @@ extern "C" {
 #include MBEDTLS_CONFIG_FILE
 #endif /* !MBEDTLS_CONFIG_FILE */
 
-#if defined(MBEDTLS_HAL_ENTROPY_HARDWARE_ALT)
-#include "../hal/hal_entropy_hardware_alt.h"
-#else /* MBEDTLS_HAL_ENTROPY_HARDWARE_ALT */
+#if !defined(MBEDTLS_HAL_ENTROPY_HARDWARE_ALT)
 #warning "Entropy Hardware Alt, Define not supported"
 #endif /* MBEDTLS_HAL_ENTROPY_HARDWARE_ALT */
 

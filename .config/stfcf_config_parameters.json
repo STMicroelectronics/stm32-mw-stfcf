@@ -1,0 +1,1265 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "componentid": "Security::STM32CubeMX2 Config:STFCF",
+  "version": "0.3.3",
+  "copyright": "Copyright (c) 2026 STMicroelectronics.",
+  "grammarVersion": "3.8",
+  "functions": [
+    {
+      "path": ".config/template/helpers/stfcf_helpers.js",
+      "accessor": "fcf_mw"
+    }
+  ],
+  "properties": {
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "type": "object",
+          "title": "General information",
+          "properties": {
+            "version": {
+              "title": "Based on MbedTLS version",
+              "type": "string",
+              "default": "3.6.5",
+              "actions": [
+                {
+                  "type": "disable",
+                  "condition": "true",
+                  "message": "This parameter is for information only and cannot be edited."
+                }
+              ]
+            }
+          }
+        },
+        "core": {
+          "title": "Core",
+          "type": "object",
+          "properties": {
+            "basic": {
+              "title": "Main features",
+              "type": "object",
+              "properties": {
+                "cryptography": {
+                  "type": "object",
+                  "title": "Cryptography",
+                  "properties": {
+                    "cipher": {
+                      "title": "Cipher",
+                      "type": "object",
+                      "properties": {
+                        "cbc": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "CBC"
+                        },
+                        "ccm": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "CCM"
+                        },
+                        "chachapoly": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "Chachapoly"
+                        },
+                        "ctr": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "CTR"
+                        },
+                        "ecb": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "ECB"
+                        },
+                        "gcm": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "GCM"
+                        }
+                      }
+                    },
+                    "asymmetric_encryption": {
+                      "title": "Asymmetric encryption",
+                      "type": "object",
+                      "properties": {
+                        "rsa_pkcs_1v2_2": {
+                          "type": "string",
+                          "title": "RSA v2.2 (cipher)",
+                          "oneOf": [
+                            {
+                              "const": "disable",
+                              "title": "Disable"
+                            },
+                            {
+                              "const": "crt",
+                              "title": "CRT"
+                            },
+                            {
+                              "const": "no_crt",
+                              "title": "Standard"
+                            }
+                          ],
+                          "default": "disable"
+                        }
+                      }
+                    },
+                    "key_agreement": {
+                      "title": "Key agreement",
+                      "type": "object",
+                      "properties": {
+                        "ecdh": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "ECDH"
+                        }
+                      }
+                    },
+                    "asymmetric_signature": {
+                      "title": "Asymmetric signature",
+                      "type": "object",
+                      "properties": {
+                        "rsa_sign_verify_1_5": {
+                          "title": "RSA v1.5 (sign and verify)",
+                          "type": "string",
+                          "oneOf": [
+                            {
+                              "const": "disable",
+                              "title": "Disable"
+                            },
+                            {
+                              "const": "crt",
+                              "title": "With CRT"
+                            },
+                            {
+                              "const": "no_crt",
+                              "title": "Standard"
+                            }
+                          ],
+                          "default": "disable"
+                        },
+                        "rsa_sign_verify_2_2": {
+                          "title": "RSA v2.2 (sign and verify)",
+                          "type": "string",
+                          "oneOf": [
+                            {
+                              "const": "disable",
+                              "title": "Disable"
+                            },
+                            {
+                              "const": "crt",
+                              "title": "With CRT"
+                            },
+                            {
+                              "const": "no_crt",
+                              "title": "Standard"
+                            }
+                          ],
+                          "default": "disable"
+                        },
+                        "ecdsa_sign_verify": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "ECDSA (sign and verify)"
+                        }
+                      }
+                    },
+                    "message_authentication_code": {
+                      "title": "Message authentication code",
+                      "type": "object",
+                      "properties": {
+                        "hmac": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "HMAC"
+                        },
+                        "cmac": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "CMAC"
+                        }
+                      }
+                    },
+                    "hash": {
+                      "title": "Hash",
+                      "type": "object",
+                      "properties": {
+                        "md5": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "MD5",
+                          "description": "Weak algorithm."
+                        },
+                        "sha1": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "SHA1",
+                          "description": "Weak algorithm."
+                        },
+                        "sha224": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "SHA224"
+                        },
+                        "sha256": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "SHA256"
+                        },
+                        "sha384": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "SHA384"
+                        },
+                        "sha512": {
+                          "type": "boolean",
+                          "default": false,
+                          "title": "SHA512"
+                        }
+                      }
+                    }
+                  }
+                },
+                "random": {
+                  "title": "Random",
+                  "type": "object",
+                  "properties": {
+                    "drbg": {
+                      "title": "DRBG",
+                      "type": "string",
+                      "oneOf": [
+                        {
+                          "const": "disable",
+                          "title": "Disable"
+                        },
+                        {
+                          "const": "ctr",
+                          "title": "DRBG - CTR"
+                        },
+                        {
+                          "const": "hmac",
+                          "title": "DRBG - HMAC"
+                        }
+                      ],
+                      "default": "disable",
+                      "description": "Deterministic Random Byte Generation (DRBG)."
+                    }
+                  }
+                },
+                "implementations": {
+                  "title": "Implementation selection",
+                  "type": "object",
+                  "properties": {
+                    "aes_impl": {
+                      "title": "AES",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "info",
+                          "condition": "!($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['!ctr', '!chachapoly'], []))",
+                          "message": "AES is used for PSA API initialization in DRBG-CTR mode."
+                        },
+                        {
+                          "type": "info",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['!ctr', '!chachapoly'], []))",
+                          "message": "AES is used for PSA API initialization and for CBC, ECB, and CTR cryptographic operations."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "$fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['ctr', 'cbc', 'ecb'], []) || $core.advanced.psa_init.drbg_mode == 'drbg_ctr'"
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['!ctr', '!chachapoly'], ['kwe']) && (!$get('peripheral.isBound', 'SAES')))",
+                          "message": "Please enable the SAES peripheral to use the Key Wrap Engine. CTR mode is not supported with hardware acceleration."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "$core.basic.implementations.aes_impl == 'alt_hal' && (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))",
+                          "message": "Please enable the AES, SAES, or CRYP peripheral to use hardware acceleration for CTR, CBC, or ECB modes, or to use DRBG-CTR mode."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "$core.basic.implementations.aes_impl == 'alt_stcryptolib' && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib'))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "(!$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'AES') && !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'SAES') && !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'CRYP'))",
+                              "message": "There is no AES/SAES/CRYP peripheral available in the current device."
+                            },
+                            {
+                              "type": "disable",
+                              "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['ctr', 'chachapoly'], ['alt_hal']))",
+                              "message": "CTR and ChaChaPoly modes are not supported with HAL alternative."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        },
+                        {
+                          "title": "Key Wrap Engine (KWE)",
+                          "const": "kwe",
+                          "description": "PSA driver.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$core.basic.cryptography.cipher.ctr || (!$core.basic.cryptography.cipher.cbc && !$core.basic.cryptography.cipher.ecb) || !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'SAES')",
+                              "message": "SAES peripheral is not available in current device to use the Key Wrap Engine. CTR mode is not supported with hardware acceleration."
+                            }
+                          ]
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on PSA API initialization, CBC, ECB, and CTR.\nMbedTLS AES alternative enabler."
+                    },
+                    "ccm_impl": {
+                      "title": "CCM",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['ccm'], ['alt_hal'])) && (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))",
+                          "message": "Please enable one of the following peripherals: AES, SAES, or CRYP."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['ccm'], ['kwe'])) && (!$get('peripheral.isBound', 'SAES'))",
+                          "message": "Please enable the SAES peripheral to use the Key Wrap Engine."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['ccm'], ['alt_stcryptolib'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib'))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['ccm'], []))",
+                          "message": "Please select one of the following implementations. By default, hardware acceleration is selected if an AES/SAES/CRYP peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "(!$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'AES') && !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'SAES') && !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'CRYP'))",
+                              "message": "There is no AES/SAES/CRYP peripheral available in the current device."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        },
+                        {
+                          "title": "Key Wrap Engine (KWE)",
+                          "const": "kwe",
+                          "description": "PSA driver.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "!$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'SAES')",
+                              "message": "SAES peripheral is not available in current device to use the Key Wrap Engine."
+                            }
+                          ]
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on CCM\nMbedTLS CCM alternative enabler."
+                    },
+                    "chachapoly_impl": {
+                      "title": "Chachapoly",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['chachapoly'], ['alt_stcryptolib'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib'))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['chachapoly'], []))",
+                          "message": "Please select one of the following implementations."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "default": "alt_stcryptolib",
+                      "description": "Applied on ChaChaPoly\nMbedTLS ChaChaPoly alternative enabler.\nChaChaPoly is not supported with hardware acceleration."
+                    },
+                    "gcm_impl": {
+                      "title": "GCM",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['gcm'], ['alt_hal'])) && (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))",
+                          "message": "Please enable one of the following peripherals: AES, SAES, or CRYP."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['gcm'], ['alt_stcryptolib'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib'))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['gcm'], ['kwe'])) && (!$get('peripheral.isBound', 'SAES'))",
+                          "message": "Please enable the SAES peripheral to use the Key Wrap Engine."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['gcm'], []))",
+                          "message": "Please select one of the following implementations. By default, hardware acceleration is selected if an AES/SAES/CRYP peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "(!$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'AES') && !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'SAES') && !$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'CRYP'))",
+                              "message": "There is no AES/SAES/CRYP peripheral available in the current device."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        },
+                        {
+                          "title": "Key Wrap Engine (KWE)",
+                          "const": "kwe",
+                          "description": "PSA driver.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "!$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'SAES')",
+                              "message": "SAES peripheral is not available in current device to use the Key Wrap Engine."
+                            }
+                          ]
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on GCM\nMbedTLS GCM alternative enabler."
+                    },
+                    "rsa_impl": {
+                      "title": "RSA",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_asym_encr_rsa_cdt($core.basic, [], ['alt_hal']) || $fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['!ecdsa_sign_verify'], ['alt_hal'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:PKA'))",
+                          "message": "Please enable the PKA peripheral to use hardware acceleration."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "(($fcf_mw.helper_stfcf_asym_encr_rsa_cdt($core.basic, [], ['alt_stcryptolib']) || $fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['!ecdsa_sign_verify'], ['alt_stcryptolib'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "(($fcf_mw.helper_stfcf_asym_encr_rsa_cdt($core.basic, ['no_crt'], ['kwe']) || $fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['rsa_sign_verify_1_5.no_crt','rsa_sign_verify_2_2.no_crt','ecdsa_sign_verify'], ['kwe'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:CCB')))",
+                          "message": "Please enable the CCB peripheral to use hardware acceleration."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_asym_encr_rsa_cdt($core.basic, [], []) || $fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['!ecdsa_sign_verify'], []))",
+                          "message": "Please select one of the following implementations. By default, the hardware acceleration is selected if an AES/SAES/CRYP peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'PKA') == false",
+                              "message": "PKA peripheral is not available in current device to use hardware acceleration."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib"
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        },
+                        {
+                          "title": "Key Wrap Engine (KWE)",
+                          "const": "kwe",
+                          "description": "PSA driver.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$core.basic.cryptography.asymmetric_encryption.rsa_pkcs_1v2_2 == 'crt' || $fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['rsa_sign_verify_1_5.crt','rsa_sign_verify_2_2.crt'], []) || $get('peripheral.isPhysicallyAvailableInCurrentDevice', 'CCB') == false",
+                              "message": "CCB peripheral is not available in current device to use the Key Wrap Engine."
+                            }
+                          ]
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "KWE supports only the signature operation.\nApplied on RSA 1.5 and RSA 2.2 (asymmetric encryption and asymmetric signature)."
+                    },
+                    "ecdh_impl": {
+                      "title": "ECDH compute shared",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_key_agre_cdt($core.basic, [], ['alt_hal']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:PKA')))",
+                          "message": "Please enable the PKA peripheral to use hardware acceleration."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_key_agre_cdt($core.basic, [], ['alt_stcryptolib']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_key_agre_cdt($core.basic, ['ecdh'], ['kwe']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:CCB') || !$get('swproject.hasComponent', 'STM32CubeMX2 Config:PKA')))",
+                          "message": "Please enable the CCB and PKA peripherals to use the Key Wrap Engine."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_key_agre_cdt($core.basic, [], []))",
+                          "message": "Please select one of the following implementations. By default, the hardware acceleration is selected if an AES/SAES/CRYP peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'PKA') == false",
+                              "message": "PKA peripheral is not available in current device to use the hardware acceleration."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib"
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        },
+                        {
+                          "title": "Key Wrap Engine (KWE)",
+                          "const": "kwe",
+                          "description": "PSA driver.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'CCB') == false",
+                              "message": "CCB peripheral is not available in current device to use the Key Wrap Engine."
+                            }
+                          ]
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on ECDH\nMbedTLS ECDH Compute shared alternative enabler."
+                    },
+                    "ecdsa_impl": {
+                      "title": "ECDSA",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['ecdsa_sign_verify'], ['alt_hal'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:PKA'))",
+                          "message": "Please enable the PKA peripheral to use hardware acceleration."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['ecdsa_sign_verify'], ['kwe'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:CCB') || !$get('swproject.hasComponent', 'STM32CubeMX2 Config:PKA'))",
+                          "message": "Please enable the CCB and PKA peripherals to use the Key Wrap Engine."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "(($fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['ecdsa_sign_verify'], ['alt_stcryptolib'])) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['ecdsa_sign_verify'], []))",
+                          "message": "Please select one of the following implementations. By default, the hardware acceleration is selected if PKA peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'PKA') == false",
+                              "message": "PKA peripheral is not available in current device to use the hardware acceleration."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib"
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        },
+                        {
+                          "title": "Key Wrap Engine (KWE)",
+                          "const": "kwe",
+                          "description": "PSA driver.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'CCB') == false || $get('peripheral.isPhysicallyAvailableInCurrentDevice', 'PKA') == false || $core.basic.cryptography.asymmetric_signature.rsa_sign_verify_1_5 == 'crt' || $core.basic.cryptography.asymmetric_signature.rsa_sign_verify_2_2 == 'crt'",
+                              "message": "CCB peripheral is not available in current device to use the Key Wrap Engine."
+                            }
+                          ]
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on ECDSA\nMbedTLS ECDSA Compute shared alternative enabler."
+                    },
+                    "md5_impl": {
+                      "title": "MD5",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "include",
+                          "condition": "($core.basic.cryptography.hash.md5)",
+                          "message": "Please select one of the following implementations."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "description": "Applied on MD5\nMbedTLS MD5 alternative enabler.",
+                      "default": "mbedtls"
+                    },
+                    "sha1_impl": {
+                      "title": "SHA1",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha1'], ['alt_hal']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:HASH')))",
+                          "message": "Please enable the HASH peripheral."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha1'], ['alt_stcryptolib']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha1'], []))",
+                          "message": "Please select one of the following implementations. By default, hardware acceleration is selected if the HASH peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'HASH') == false",
+                              "message": "HASH peripheral is not available to use hardware acceleration."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on SHA1\nMbedTLS SHA1 alternative enabler."
+                    },
+                    "sha256_impl": {
+                      "title": "SHA256",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.implementations.sha256_impl == 'alt_hal' && (!$get('peripheral.isBound', 'HASH')))",
+                          "message": "Please enable the HASH peripheral to use hardware acceleration."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.implementations.sha256_impl == 'alt_stcryptolib' && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "info",
+                          "condition": "!($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha256'], []))",
+                          "message": "Please enable HASH peripheral for PSA API initialization in DRBG-CTR and DRBG-HMAC mode."
+                        },
+                        {
+                          "type": "info",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha256'], []))",
+                          "message": "Please enable HASH peripheral for PSA API initialization and digest operation."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'HASH') == false",
+                              "message": "HASH peripheral is not available to use the hardware acceleration."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on SHA224 or SHA256\nMbedTLS SHA256 alternative enabler."
+                    },
+                    "sha512_impl": {
+                      "title": "SHA512",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha384', 'sha512'], ['alt_hal']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:HASH')))",
+                          "message": "Please enable the HASH peripheral."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha384', 'sha512'], ['alt_stcryptolib']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha384', 'sha512'], []))",
+                          "message": "Please select one of the following implementations. By default, hardware acceleration is selected if the HASH peripheral is available in the device."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "alt_hal",
+                          "title": "HAL (hardware acceleration)",
+                          "description": "Mbed TLS Alternative.",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'HASH') == false",
+                              "message": "HASH peripheral is not available in current device to use the hardware acceleration."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "default": "alt_hal",
+                      "description": "Applied on SHA384 or SHA512\nMbedTLS SHA512 alternative enabler."
+                    },
+                    "cmac_impl": {
+                      "title": "CMAC",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_mess_auth_cdt($core.basic, ['cmac'], ['alt_stcryptolib']) && (!$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib')))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_mess_auth_cdt($core.basic, ['cmac'], []))",
+                          "message": "Please select one of the following implementations."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "description": "Applied on CMAC\nMbedTLS CMAC alternative enabler.",
+                      "default": "alt_stcryptolib"
+                    },
+                    "drbg_impl": {
+                      "title": "DRBG",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "include",
+                          "condition": "($fcf_mw.helper_stfcf_random_cdt($core.basic, ['ctr'], []))",
+                          "message": "Please select one of the following implementations."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($fcf_mw.helper_stfcf_random_cdt($core.basic, ['ctr'], ['alt_stcryptolib']) && !$get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib'))",
+                          "message": "Please enable the STCryptoLib MW to use optimized sofware implementation."
+                        },
+                        {
+                          "type": "info",
+                          "condition": "($fcf_mw.helper_stfcf_random_cdt($core.basic, [], ['alt_stcryptolib']))",
+                          "message": "MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG enabler."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "title": "STCryptoLib",
+                          "const": "alt_stcryptolib",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        },
+                        {
+                          "title": "Mbed TLS",
+                          "const": "mbedtls",
+                          "description": "Mbed TLS Crypto."
+                        }
+                      ],
+                      "default": "alt_stcryptolib",
+                      "description": "Applied on DRBG\nMbedTLS DRBG alternative enabler."
+                    }
+                  }
+                }
+              }
+            },
+            "advanced": {
+              "title": "Advanced features",
+              "type": "object",
+              "properties": {
+                "psa_init": {
+                  "type": "object",
+                  "title": "PSA API Initialization",
+                  "properties": {
+                    "drbg_mode": {
+                      "title": "DRBG mode",
+                      "type": "string",
+                      "actions": [
+                        {
+                          "type": "info",
+                          "message": "DRBG-CTR is recommended with hardware acceleration for vulnerability reasons. It enables AES and SHA-256 or SHA-512.",
+                          "condition": "$core.advanced.psa_init.drbg_mode == 'drbg_ctr'"
+                        },
+                        {
+                          "type": "info",
+                          "message": "Please enable DRBG-HMAC as an alternative mode. It enables SHA-256 or SHA-512.",
+                          "condition": "$core.advanced.psa_init.drbg_mode == 'drbg_hmac'"
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.implementations.aes_impl == 'alt_stcryptolib' || $core.basic.implementations.aes_impl == 'mbedtls') && $core.advanced.psa_init.drbg_mode == 'drbg_ctr'",
+                          "message": "For security reasons, AES implementation = HAL or DRBG-HMAC are recommended."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.implementations.aes_impl == 'alt_hal') && $core.advanced.psa_init.drbg_mode == 'drbg_hmac'",
+                          "message": "For security reasons, DRBG-CTR is recommended."
+                        }
+                      ],
+                      "oneOf": [
+                        {
+                          "const": "drbg_ctr",
+                          "title": "DRBG - CTR"
+                        },
+                        {
+                          "title": "DRBG - HMAC",
+                          "const": "drbg_hmac",
+                          "description": "Mbed TLS Alternative STM32 Cryptographic library."
+                        }
+                      ],
+                      "default": "drbg_ctr",
+                      "description": "The implementation selection determines the cryptographic module used.\n If the MbedTLS alternative hardware abstraction layer (HAL) is selected, the deterministic random bit generator using counter mode (DRBG-CTR) is preferred.\n DRBG-CTR is recommended for security reasons. It enables the use of AES and SHA-256."
+                    }
+                  }
+                },
+                "mbedtls_platform_management": {
+                  "type": "object",
+                  "title": "MbedTLS platform management",
+                  "properties": {
+                    "mem_buff_allocator": {
+                      "title": "Memory buffer allocator",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Have to define a static buffer and its size to allocate data inside.\nTo check the documentation for more details.\nMBEDTLS_MEMORY_BUFFER_ALLOC_C enabler."
+                    }
+                  }
+                },
+                "mbedtls_elliptic_curves": {
+                  "type": "object",
+                  "title": "MbedTLS elliptic curves selection",
+                  "properties": {
+                    "short_weierstrass_curves": {
+                      "title": "Short weierstrass curves",
+                      "description": "Supporting ECP, ECDH, ECDSA.",
+                      "type": "object",
+                      "properties": {
+                        "secp192r1": {
+                          "title": "SECP192R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "P-192 for MBEDTLS_ECP_DP_SECP192R1_ENABLED."
+                        },
+                        "secp224r1": {
+                          "title": "SECP224R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "P-224 for MBEDTLS_ECP_DP_SECP224R1_ENABLED."
+                        },
+                        "secp256r1": {
+                          "title": "SECP256R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "P-256 for MBEDTLS_ECP_DP_SECP256R1_ENABLED."
+                        },
+                        "secp384r1": {
+                          "title": "SECP384R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "P-384 for MBEDTLS_ECP_DP_SECP384R1_ENABLED."
+                        },
+                        "secp521r1": {
+                          "title": "SECP521R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "P-521 for MBEDTLS_ECP_DP_SECP521R1_ENABLED."
+                        },
+                        "secp192k1": {
+                          "title": "SECP192K1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "SECP192K1 for MBEDTLS_ECP_DP_SECP192K1_ENABLED."
+                        },
+                        "secp224k1": {
+                          "title": "SECP224K1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "SECP224K1 for MBEDTLS_ECP_DP_SECP224K1_ENABLED."
+                        },
+                        "secp256k1": {
+                          "title": "SECP256K1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "SECP256K1 for MBEDTLS_ECP_DP_SECP256K1_ENABLED."
+                        },
+                        "bp256r1": {
+                          "title": "BP256R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "BrainpoolP256r1 for MBEDTLS_ECP_DP_BP256R1_ENABLED."
+                        },
+                        "bp384r1": {
+                          "title": "BP384R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "BrainpoolP384r1 for MBEDTLS_ECP_DP_BP384R1_ENABLED."
+                        },
+                        "bp512r1": {
+                          "title": "BP512R1",
+                          "type": "boolean",
+                          "default": false,
+                          "description": "BrainpoolP512r1 for MBEDTLS_ECP_DP_BP512R1_ENABLED."
+                        }
+                      }
+                    },
+                    "montgomery_curves": {
+                      "title": "Montgomery curves",
+                      "description": "Supporting ECP.",
+                      "type": "object",
+                      "properties": {
+                        "curve25519": {
+                          "title": "Curve25519",
+                          "description": "For MBEDTLS_ECP_DP_CURVE25519_ENABLED.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "curve448": {
+                          "title": "Curve448",
+                          "description": "For MBEDTLS_ECP_DP_CURVE448_ENABLED.",
+                          "type": "boolean",
+                          "default": false
+                        }
+                      }
+                    }
+                  }
+                },
+                "kwe_config": {
+                  "title": "KWE",
+                  "type": "object",
+                  "description": "Key Wrap Engine PSA driver configuration.",
+                  "actions": [
+                    {
+                      "type": "enable",
+                      "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['!ctr', '!chachapoly'], ['kwe']) || $fcf_mw.helper_stfcf_key_agre_cdt($core.basic, ['ecdh'], ['kwe']) || $fcf_mw.helper_stfcf_asym_sign_cdt($core.basic, ['rsa_sign_verify_1_5.no_crt','rsa_sign_verify_2_2.no_crt','ecdsa_sign_verify'], ['kwe']) || $fcf_mw.helper_stfcf_asym_encr_rsa_cdt($core.basic, ['no_crt'], ['kwe']))",
+                      "message": "Enable Key Wrap Engine (KWE) PSA driver settings when the selected implementation requires KWE support."
+                    }
+                  ],
+                  "properties": {
+                    "wrap_aes_cbc_symetric_key": {
+                      "title": "Wrap AES-CBC symmetric key",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Enables symmetric key wrap using AES-CBC algorithm, by default symmetric keys are wrapped using AES-ECB algorithm."
+                    },
+                    "kwe_ecp_short_weierstrass": {
+                      "title": "Short weierstrass elliptic curve former key agreement",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Use case: Public key export with ECC ECDSA."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "resourcesAllocation": {
+          "title": "Resources allocation",
+          "type": "object",
+          "properties": {
+            "periph_alloc_for_rng": {
+              "title": "Peripheral allocation for random generation",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "description": "Applied on RNG when MbedTLS ALT HAL is selected.",
+              "criteria": {
+                "peripheralType": [
+                  "rng"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_rng?.selection",
+                  "message": "Please select the RNG instance in the Peripherals configuration panel. RNG is needed to initialize PSA Crypto API."
+                }
+              ]
+            },
+            "periph_alloc_for_aes": {
+              "title": "Peripheral allocation for AES",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "message": "Please select a device instance to proceed with the AES configuration.",
+              "criteria": {
+                "peripheralType": [
+                  "aes",
+                  "saes",
+                  "cryp"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "exclude",
+                  "condition": "(!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                },
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_aes?.selection",
+                  "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
+                }
+              ]
+            },
+            "periph_alloc_for_gcm": {
+              "title": "Peripheral allocation for GCM",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "message": "Please select a device instance to proceed with the GCM configuration.",
+              "criteria": {
+                "peripheralType": [
+                  "aes",
+                  "saes",
+                  "cryp"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "exclude",
+                  "condition": "($core.basic.implementations.gcm_impl != 'alt_hal' && $core.basic.implementations.gcm_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                },
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_gcm?.selection",
+                  "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
+                }
+              ]
+            },
+            "periph_alloc_for_ccm": {
+              "title": "Peripheral allocation for CCM",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "message": "Please select a device instance to proceed with the CCM configuration.",
+              "criteria": {
+                "peripheralType": [
+                  "aes",
+                  "saes",
+                  "cryp"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "exclude",
+                  "condition": "($core.basic.implementations.ccm_impl != 'alt_hal' && $core.basic.implementations.ccm_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                },
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_ccm?.selection",
+                  "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
+                }
+              ]
+            },
+            "periph_alloc_for_hash": {
+              "title": "Peripheral allocation for HASH",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "description": "Applied on HASH when MbedTLS ALT HAL is selected.",
+              "criteria": {
+                "peripheralType": [
+                  "hash"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "exclude",
+                  "condition": "(!$get('peripheral.isBound', 'HASH'))",
+                  "message": "Please enable MbedTLS Alt HAL for at least one of the hashing algorithms (SHA1, SHA256, or SHA512) to proceed with the HASH peripheral allocation."
+                },
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_hash?.selection",
+                  "message": "Please select the HASH instance to proceed with HASH operations."
+                }
+              ]
+            },
+            "periph_alloc_for_pka": {
+              "title": "Peripheral allocation for PKA",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "description": "Applied on PKA when MbedTLS ALT HAL is selected.",
+              "criteria": {
+                "peripheralType": [
+                  "pka"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "exclude",
+                  "condition": "(!$get('peripheral.isBound', 'PKA'))"
+                },
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_pka?.selection",
+                  "message": "Please select the PKA instance to proceed with PKA operations."
+                }
+              ]
+            },
+            "periph_alloc_for_ccb": {
+              "title": "Peripheral allocation for CCB",
+              "type": "object",
+              "objectType": "bind.peripheral.config",
+              "description": "Applied on CCB when MbedTLS ALT HAL is selected.",
+              "criteria": {
+                "peripheralType": [
+                  "ccb"
+                ]
+              },
+              "actions": [
+                {
+                  "type": "include",
+                  "condition": "($get('peripheral.isBound', 'CCB')) && ($core.basic.implementations.ecdsa_impl == 'kwe' || $core.basic.implementations.rsa_impl == 'kwe' || $core.basic.implementations.ecdh_impl == 'kwe')"
+                },
+                {
+                  "type": "error",
+                  "condition": "!$resourcesAllocation.periph_alloc_for_ccb?.selection",
+                  "message": "Please select the CCB instance to proceed with KWE operations."
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

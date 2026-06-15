@@ -6,6 +6,38 @@
     <environment name="STM32Cube">
       <stm32:pack type="MW" friendlyName="stfcf" shortDesc="STM32 Flexible Crypto Framework middleware">
         <relocation-info parent="middleware" layer="" element=""/>
+        <compatibility>
+          <release version="2.1.0">
+            <applicable-schema schemaType="sw-configuration" schemaVersion="3.8.0"/>
+            <applicable-api-group apiType="codegen-getters">
+              <applicable-api apiType="clockAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="DmaAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="EnvVarAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="ExtiAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="hwPlatformAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="NvicAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="peripheralsResourceManagerAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="pinoutAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWProjectAPI" apiVersion="1.0.0"/>
+            </applicable-api-group>
+          </release>
+          <release version="2.0.0">
+            <applicable-schema schemaType="sw-configuration" schemaVersion="3.7.0"/>
+            <applicable-api-group apiType="codegen-getters">
+              <applicable-api apiType="clockAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="DmaAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="EnvVarAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="ExtiAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="hwPlatformAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="NvicAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="peripheralsResourceManagerAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="pinoutAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWProjectAPI" apiVersion="1.0.0"/>
+            </applicable-api-group>
+          </release>
+        </compatibility>
       </stm32:pack>
     </environment>
   </environments>
@@ -21,6 +53,9 @@
   <repository type="git">https://github.com/STMicroelectronics/stm32-mw-stfcf/tree/hal2</repository>
   <supportContact/>
   <releases>
+    <release version="2.1.0" date="2026-06-05">
+      Add support of configuration.
+    </release>
     <release version="2.0.0" date="2026-03-13">
       First official version of STFCF (STM32 Flexible Crypto Framework) middleware pack.
     </release>
@@ -179,6 +214,9 @@
       </Pre_Include_Global_h>
       <environments>
         <environment name="STM32Cube">
+          <stm32:component>
+            <middleware-entry-point id="STFCF" name="STFCF" category="Security"/>
+          </stm32:component>
         </environment>
       </environments>
       <files>
@@ -264,13 +302,12 @@
       </files>
     </component>
     <!-- Mbed TLS ALT HAL -->
-    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL" Cversion="1.0.0" condition="Mbed TLS Alt HAL condition">
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL" Cversion="1.0.1" condition="Mbed TLS Alt HAL condition">
       <description>Mbed TLS alternative implementation thanks hardware acceleration (HAL API)</description>
       <files>
         <file category="header" name="mbedtls_alt/include/hal/hal_aes_alt.h"/>
         <file category="header" name="mbedtls_alt/include/hal/hal_ccm_alt.h"/>
         <file category="header" name="mbedtls_alt/include/hal/hal_ecp_alt.h"/>
-        <file category="header" name="mbedtls_alt/include/hal/hal_entropy_hardware_alt.h"/>
         <file category="header" name="mbedtls_alt/include/hal/hal_gcm_alt.h"/>
         <file category="header" name="mbedtls_alt/include/hal/hal_rsa_alt.h"/>
         <file category="header" name="mbedtls_alt/include/hal/hal_sha1_alt.h"/>

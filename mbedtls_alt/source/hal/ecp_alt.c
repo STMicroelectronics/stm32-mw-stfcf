@@ -945,8 +945,8 @@ cleanup:
 /*
  * Import a point from a TLS ECPoint record (RFC 4492)
  *      struct {
- *          opaque point <1..2^8-1>;
- *      } ECPoint;
+ *          opaque point <1..2^8-1>
+ *      } ECPoint
  */
 int mbedtls_ecp_tls_read_point(const mbedtls_ecp_group *grp,
                                mbedtls_ecp_point *pt,
@@ -982,8 +982,8 @@ int mbedtls_ecp_tls_read_point(const mbedtls_ecp_group *grp,
 /*
  * Export a point as a TLS ECPoint record (RFC 4492)
  *      struct {
- *          opaque point <1..2^8-1>;
- *      } ECPoint;
+ *          opaque point <1..2^8-1>
+ *      } ECPoint
  */
 int mbedtls_ecp_tls_write_point(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *pt,
                                 int format, size_t *olen,
@@ -1565,6 +1565,9 @@ static int ecp_mul_comb(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
                         void *p_rng,
                         mbedtls_ecp_restart_ctx *rs_ctx)
 {
+  (void) f_rng;
+  (void) p_rng;
+  (void) rs_ctx;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
   size_t olen;
   size_t scalarMulSize;
@@ -1633,7 +1636,7 @@ static int ecp_mul_comb(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
   /* Get the scalar multiplication result */
   if (HAL_PKA_ECC_GetResultMulProtect(pPKA, &ECC_MulOut) == 0U)
   {
-    return 0;
+    return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
   }
 
   /* Convert the scalar multiplication result into ecp point format */
@@ -2402,7 +2405,9 @@ int mbedtls_ecp_gen_privkey(const mbedtls_ecp_group *grp,
       MBEDTLS_MPI_CHK_ECP_ALT(mbedtls_mpi_shift_r(d, b - grp->nbits));
     }
     else
+    {
       MBEDTLS_MPI_CHK_ECP_ALT(mbedtls_mpi_set_bit(d, grp->nbits, 1));
+    }
 
     /* Make sure the last two bits are unset for Curve448, three bits for
        Curve25519 */
@@ -2724,7 +2729,7 @@ int mbedtls_ecp_self_test(int verbose)
 
   if (verbose != 0)
   {
-    mbedtls_printf("  ECP test #1 (constant op_count, base point G): ");
+    (void) mbedtls_printf("  ECP test #1 (constant op_count, base point G): ");
   }
 
   /* Do a dummy multiplication first to trigger precomputation */
@@ -2755,7 +2760,7 @@ int mbedtls_ecp_self_test(int verbose)
     {
       if (verbose != 0)
       {
-        mbedtls_printf("failed (%u)\n", (unsigned int) i);
+        (void) mbedtls_printf("failed (%u)\n", (unsigned int) i);
       }
 
       ret = 1;
@@ -2765,12 +2770,12 @@ int mbedtls_ecp_self_test(int verbose)
 
   if (verbose != 0)
   {
-    mbedtls_printf("passed\n");
+    (void) mbedtls_printf("passed\n");
   }
 
   if (verbose != 0)
   {
-    mbedtls_printf("  ECP test #2 (constant op_count, other point): ");
+    (void) mbedtls_printf("  ECP test #2 (constant op_count, other point): ");
   }
   /* We computed P = 2G last time, use it */
 
@@ -2798,7 +2803,7 @@ int mbedtls_ecp_self_test(int verbose)
     {
       if (verbose != 0)
       {
-        mbedtls_printf("failed (%u)\n", (unsigned int) i);
+        (void) mbedtls_printf("failed (%u)\n", (unsigned int) i);
       }
 
       ret = 1;
@@ -2808,14 +2813,14 @@ int mbedtls_ecp_self_test(int verbose)
 
   if (verbose != 0)
   {
-    mbedtls_printf("passed\n");
+    (void) mbedtls_printf("passed\n");
   }
 
 cleanup:
 
   if ((ret < 0) && (verbose != 0))
   {
-    mbedtls_printf("Unexpected error, return code = %08X\n", ret);
+    (void) mbedtls_printf("Unexpected error, return code = %08X\n", ret);
   }
 
   mbedtls_ecp_group_free(&grp);
@@ -2825,7 +2830,7 @@ cleanup:
 
   if (verbose != 0)
   {
-    mbedtls_printf("\n");
+    (void) mbedtls_printf("\n");
   }
 
   return ret;

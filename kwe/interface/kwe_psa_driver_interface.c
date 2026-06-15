@@ -497,7 +497,7 @@ psa_status_t mbedtls_kwe_opaque_import_key(
                       (void *)(p_data + PSA_KWE_RSSE_BLOB_KEY_OFFSET), PSA_BITS_TO_BYTES(*bits));
 
         /* Get wrapped key phi from the RSSE blob */
-        (void) memcpy((void *)(p_key_buffer + PSA_KWE_DRIVER_KEY_CONTEXT_BASE_SIZE + PSA_BITS_TO_BYTES(*bits)),
+        (void) memcpy((void *)(p_key_buffer + (size_t)PSA_KWE_DRIVER_KEY_CONTEXT_BASE_SIZE + PSA_BITS_TO_BYTES(*bits)),
                       (void *)(p_data + PSA_KWE_RSSE_BLOB_KEY_OFFSET + PSA_BITS_TO_BYTES(*bits)),
                       PSA_BITS_TO_BYTES(*bits));
 
@@ -635,6 +635,7 @@ cleanup:
           }
 #endif  /* KWE_USE_CBC_TO_WRAP_SYMMETRIC_KEY */
 
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
           status = kwe_to_psa_error(KWE_WrapKey(p_data, data_length,
                                                 p_key_buffer, key_buffer_size,
                                                 p_key_buffer_length));
@@ -643,6 +644,7 @@ cleanup:
           {
             return status;
           }
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
 
           if (bits != NULL)
           {
@@ -695,6 +697,7 @@ psa_status_t mbedtls_kwe_opaque_export_public_key(
   const uint8_t *p_key, size_t key_length,
   uint8_t *p_data, size_t data_size, size_t *p_data_length)
 {
+  (void) key_length;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
 #if defined(MBEDTLS_ECDSA_C) || defined(MBEDTLS_ECDH_C)
   psa_key_type_t key_type = psa_get_key_type(p_attributes);
@@ -774,6 +777,7 @@ psa_status_t mbedtls_kwe_opaque_key_agreement(
   uint8_t *p_shared_secret, size_t shared_secret_size,
   size_t *p_shared_secret_length)
 {
+  (void) key_buffer_size;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
   psa_key_type_t key_type = psa_get_key_type(p_attributes);
 
@@ -897,6 +901,7 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
   const uint8_t *p_hash, size_t hash_length,
   uint8_t *p_signature, size_t signature_size, size_t *p_signature_length)
 {
+  (void) key_buffer_size;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
 #if defined(MBEDTLS_ECDSA_C) || defined(MBEDTLS_RSA_C)
   psa_key_type_t key_type = psa_get_key_type(p_attributes);
@@ -910,7 +915,7 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
 #endif /* MBEDTLS_ECDSA_C */
 
 #if defined(MBEDTLS_RSA_C)
-  /* mbedtls_rsa_context *rsa = NULL; */
+  /* mbedtls_rsa_context *rsa = NULL */
   mbedtls_md_type_t md_alg;
   unsigned char md_size;
   unsigned char *tmp_sig = NULL;
@@ -1067,7 +1072,8 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
 
           p = tmp_sig;
           p += signature_size - hlen - slen - 2U;
-          *p++ = 0x01;
+          *p = 0x01;
+          p++;
 
           /* Generate salt of length slen in place in the encoded message */
           salt = p;
@@ -1114,7 +1120,7 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
           }
 
           /* Note: EMSA-PSS encoding is over the length of N - 1 bits */
-          /* msb = mbedtls_mpi_bitlen(&ctx->N) - 1; */
+          /* msb = mbedtls_mpi_bitlen(&ctx->N) - 1 */
           msb = psa_get_key_bits(p_attributes) - 1U;
 
           /* Compensate for boundary condition when applying mask */
@@ -1135,7 +1141,8 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
           tmp_sig[0] &= 0xFFU >> ((signature_size * 8U) - msb);
 
           p += hlen;
-          *p++ = 0xBC;
+          *p = 0xBC;
+          p++;
 
           status = (int32_t)KWE_RsaModularExp(&rsa_tmp, p_key_buffer,
                                               tmp_sig, p_signature);
@@ -1252,6 +1259,8 @@ psa_status_t mbedtls_kwe_opaque_asymmetric_decrypt(
   const uint8_t *p_salt, size_t salt_length,
   uint8_t *p_output, size_t output_size, size_t *p_output_length)
 {
+  (void) key_buffer_size;
+  (void) input_length;
 #if defined(MBEDTLS_RSA_C) && defined(MBEDTLS_PKCS1_V21)
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
   psa_key_type_t type = psa_get_key_type(p_attributes);
@@ -1348,7 +1357,8 @@ psa_status_t mbedtls_kwe_opaque_asymmetric_decrypt(
      */
     p = buf;
 
-    bad = mbedtls_ct_bool(*p++); /* First byte must be 0 */
+    bad = mbedtls_ct_bool(*p); /* First byte must be 0 */
+    p++;
 
     p += hlen; /* Skip seed */
 
@@ -1367,7 +1377,8 @@ psa_status_t mbedtls_kwe_opaque_asymmetric_decrypt(
     }
 
     p += pad_len;
-    bad = mbedtls_ct_bool_or(bad, mbedtls_ct_uint_ne(*p++, 0x01));
+    bad = mbedtls_ct_bool_or(bad, mbedtls_ct_uint_ne(*p, 0x01));
+    p++;
 
     /*
      * The only information "leaked" is whether the padding was correct or not
@@ -1454,8 +1465,10 @@ psa_status_t mbedtls_kwe_opaque_aead_encrypt(
   const uint8_t *p_plaintext, size_t plaintext_length,
   uint8_t *p_ciphertext, size_t ciphertext_size, size_t *p_ciphertext_length)
 {
+  (void) p_attributes;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
 
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 #if defined(MBEDTLS_AES_C) && (defined(MBEDTLS_GCM_C) || defined(MBEDTLS_CCM_C))
   uint8_t tag_length = 0;
   kwe_algorithm_t alg_tmp;
@@ -1491,6 +1504,7 @@ psa_status_t mbedtls_kwe_opaque_aead_encrypt(
   }
   else
 #endif /* MBEDTLS_GCM_C || MBEDTLS_CCM_C */
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
   {
     status = PSA_ERROR_NOT_SUPPORTED;
   }
@@ -1527,8 +1541,10 @@ psa_status_t mbedtls_kwe_opaque_aead_decrypt(
   const uint8_t *p_ciphertext, size_t ciphertext_length,
   uint8_t *p_plaintext, size_t plaintext_size, size_t *p_plaintext_length)
 {
+  (void) p_attributes;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
 
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 #if defined(MBEDTLS_AES_C) && (defined(MBEDTLS_GCM_C) || defined(MBEDTLS_CCM_C))
   uint8_t tag_length = 0;
   kwe_algorithm_t alg_tmp;
@@ -1564,6 +1580,7 @@ psa_status_t mbedtls_kwe_opaque_aead_decrypt(
   }
   else
 #endif /* MBEDTLS_GCM_C || MBEDTLS_CCM_C */
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
   {
     status = PSA_ERROR_NOT_SUPPORTED;
   }
@@ -1595,8 +1612,10 @@ psa_status_t mbedtls_kwe_opaque_cipher_encrypt(
   const uint8_t *p_plaintext, size_t plaintext_length,
   uint8_t *p_ciphertext, size_t ciphertext_size, size_t *p_ciphertext_length)
 {
+  (void) p_attributes;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
 
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 #if defined(MBEDTLS_CIPHER_C) && (defined(MBEDTLS_CIPHER_MODE_ECB) || defined(MBEDTLS_CIPHER_MODE_CBC))
   kwe_algorithm_t alg_tmp;
 
@@ -1627,6 +1646,7 @@ psa_status_t mbedtls_kwe_opaque_cipher_encrypt(
   }
   else
 #endif /* MBEDTLS_CIPHER_C && MBEDTLS_CIPHER_MODE_ECB || MBEDTLS_CIPHER_MODE_CBC */
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
   {
     status = PSA_ERROR_NOT_SUPPORTED;
   }
@@ -1655,8 +1675,10 @@ psa_status_t mbedtls_kwe_opaque_cipher_decrypt(
   const uint8_t *p_ciphertext, size_t input_length,
   uint8_t *p_plaintext, size_t plaintext_size, size_t *p_plaintext_length)
 {
+  (void) p_attributes;
   psa_status_t status = PSA_ERROR_HARDWARE_FAILURE;
 
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 #if defined(MBEDTLS_CIPHER_C) && (defined(MBEDTLS_CIPHER_MODE_ECB) || defined(MBEDTLS_CIPHER_MODE_CBC))
   kwe_algorithm_t alg_tmp;
 
@@ -1686,6 +1708,7 @@ psa_status_t mbedtls_kwe_opaque_cipher_decrypt(
   }
   else
 #endif /* MBEDTLS_CIPHER_C && MBEDTLS_CIPHER_MODE_ECB || MBEDTLS_CIPHER_MODE_CBC */
+#endif /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
   {
     status = PSA_ERROR_NOT_SUPPORTED;
   }

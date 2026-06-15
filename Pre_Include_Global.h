@@ -23,10 +23,7 @@
 extern "C" {
 #endif
 
-/* origin-pack: STMicroelectronics::stfcf@2.0.0 */
-/* file-format: 1.0.0 */
-
-/* Device headers and defines */
+// Device headers and defines
 
 
 /* RTE Content */

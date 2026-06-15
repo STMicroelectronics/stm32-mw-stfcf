@@ -59,12 +59,13 @@ void mbedtls_gcm_init(mbedtls_gcm_context *ctx)
   cmox_init_arg_t init_arg;
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  (void)cmox_initialize(&init_arg);
 }
 
 int mbedtls_gcm_setkey(mbedtls_gcm_context *ctx, mbedtls_cipher_id_t cipher,
                        const unsigned char *key, unsigned int keybits)
 {
+  (void) cipher;
   if (keybits > 256U)
   {
     return MBEDTLS_ERR_GCM_BAD_INPUT;
@@ -170,7 +171,7 @@ int mbedtls_gcm_update(mbedtls_gcm_context *ctx,
                        unsigned char *output, size_t output_size,
                        size_t *output_length)
 {
-
+  (void) output_size;
   cmox_cipher_retval_t retval; /* STCryptoLib return value */
   size_t computed_size = 0;    /* Size computed by STCryptoLib */
 
@@ -195,7 +196,9 @@ int mbedtls_gcm_finish(mbedtls_gcm_context *ctx,
                        size_t *output_length,
                        unsigned char *tag, size_t tag_len)
 {
-
+  (void) output;
+  (void) output_size;
+  (void) output_length;
   cmox_cipher_retval_t retval;  /* STCryptoLib return value */
   size_t computed_size = 0;     /* Size computed by STCryptoLib */
   uint32_t fault_check;

@@ -122,7 +122,7 @@ kwe_status_t KWE_RsaModularExp(
 /** @addtogroup KWE_CORE_Exported_Functions_Group4
   * @{
   */
-
+#if defined(KWE_SYMMETRIC_KEY_WRAP_ENABLED)
 kwe_status_t KWE_WrapKey(
   const uint8_t *p_data,
   size_t data_length,
@@ -160,7 +160,7 @@ kwe_status_t KWE_Decrypt(
   const uint8_t *p_key_buffer, size_t key_buffer_size,
   const uint8_t *p_input, size_t input_length,
   uint8_t *p_output, size_t output_size, size_t *p_output_length);
-
+#endif  /* KWE_SYMMETRIC_KEY_WRAP_ENABLED */
 /**
   * @}
   */

@@ -833,7 +833,7 @@ void mbedtls_rsa_init(mbedtls_rsa_context *ctx)
   (void)memset(ctx, 0, sizeof(mbedtls_rsa_context));
 
   ctx->padding = MBEDTLS_RSA_PKCS_V15;
-  ctx->hash_id = MBEDTLS_MD_NONE;
+  ctx->hash_id = (int)MBEDTLS_MD_NONE;
 
 #if defined(MBEDTLS_THREADING_C)
   /* Set ctx->ver to nonzero to indicate that the mutex has been
@@ -862,6 +862,7 @@ int mbedtls_rsa_set_padding(mbedtls_rsa_context *ctx, int padding,
 #endif /* MBEDTLS_PKCS1_V21 */
     default:
       return MBEDTLS_ERR_RSA_INVALID_PADDING;
+      break;
   }
 
 #if defined(MBEDTLS_PKCS1_V21)
@@ -877,7 +878,7 @@ int mbedtls_rsa_set_padding(mbedtls_rsa_context *ctx, int padding,
 #endif /* MBEDTLS_PKCS1_V21 */
 
   ctx->padding = padding;
-  ctx->hash_id = hash_id;
+  ctx->hash_id = (int)hash_id;
 
   return 0;
 }
@@ -1237,7 +1238,8 @@ int mbedtls_rsa_rsaes_oaep_encrypt(mbedtls_rsa_context *ctx,
   rlen = ctx->len - 3U - ilen;
 
   /* Generate the random */
-  if ((ret = f_rng(p_rng, p, rlen)) != 0)
+  ret = f_rng(p_rng, p, rlen);
+  if (ret != 0)
   {
     ret = MBEDTLS_ERR_RSA_RNG_FAILED + ret;
     goto exit;
@@ -1334,11 +1336,11 @@ int mbedtls_rsa_rsaes_pkcs1_v15_encrypt(mbedtls_rsa_context *ctx,
 
   /* Calculate the random length : k - mlen - 3, cf RFC8017 7.2.1 */
   rlen = ctx->len - 3U - ilen;
-
   /* Generate an octet string PS consisting of pseudo-randomly generated
      nonzero octets */
-  while (rlen-- > 0U)
+  while (rlen > 0U)
   {
+    rlen--;
     do
     {
       ret = f_rng(p_rng, p, 1);
@@ -1352,6 +1354,7 @@ int mbedtls_rsa_rsaes_pkcs1_v15_encrypt(mbedtls_rsa_context *ctx,
     }
     p++;
   }
+  rlen--;
 
   /* Compute directly the signature passing all the needed parameters */
   retval = cmox_rsa_pkcs1v15_encrypt(&ctx->rsa_ctx, &rsa_key, input, ilen,
@@ -1379,16 +1382,19 @@ int mbedtls_rsa_pkcs1_encrypt(mbedtls_rsa_context *ctx,
     case MBEDTLS_RSA_PKCS_V15:
       return mbedtls_rsa_rsaes_pkcs1_v15_encrypt(ctx, f_rng, p_rng,
                                                  ilen, input, output);
+      break;
 #endif /* MBEDTLS_PKCS1_V15 */
 
 #if defined(MBEDTLS_PKCS1_V21)
     case MBEDTLS_RSA_PKCS_V21:
       return mbedtls_rsa_rsaes_oaep_encrypt(ctx, f_rng, p_rng, NULL, 0,
                                             ilen, input, output);
+      break;
 #endif /* MBEDTLS_PKCS1_V21 */
 
     default:
       return MBEDTLS_ERR_RSA_INVALID_PADDING;
+      break;
   }
 }
 
@@ -1405,6 +1411,8 @@ int mbedtls_rsa_rsaes_oaep_decrypt(mbedtls_rsa_context *ctx,
                                    unsigned char *output,
                                    size_t output_max_len)
 {
+  (void) f_rng;
+  (void) p_rng;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED; /* Final return value */
   cmox_rsa_retval_t retval = 0;          /* STCryptoLib return value */
   cmox_rsa_key_t rsa_key = {0};          /* Rsa key with STCryptoLib format */
@@ -1655,6 +1663,8 @@ int mbedtls_rsa_rsaes_pkcs1_v15_decrypt(mbedtls_rsa_context *ctx,
                                         unsigned char *output,
                                         size_t output_max_len)
 {
+  (void) f_rng;
+  (void) p_rng;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED; /* Final return value */
   cmox_rsa_retval_t retval = 0;           /* STCryptoLib return value */
   cmox_rsa_key_t rsa_key = {0};           /* Rsa key with STCryptoLib format */
@@ -1889,6 +1899,7 @@ int mbedtls_rsa_pkcs1_decrypt(mbedtls_rsa_context *ctx,
     case MBEDTLS_RSA_PKCS_V15:
       return mbedtls_rsa_rsaes_pkcs1_v15_decrypt(ctx, f_rng, p_rng, olen,
                                                  input, output, output_max_len);
+      break;
 #endif /* MBEDTLS_PKCS1_V15 */
 
 #if defined(MBEDTLS_PKCS1_V21)
@@ -1896,10 +1907,12 @@ int mbedtls_rsa_pkcs1_decrypt(mbedtls_rsa_context *ctx,
       return mbedtls_rsa_rsaes_oaep_decrypt(ctx, f_rng, p_rng, NULL, 0,
                                             olen, input, output,
                                             output_max_len);
+      break;
 #endif /* MBEDTLS_PKCS1_V21 */
 
     default:
       return MBEDTLS_ERR_RSA_INVALID_PADDING;
+      break;
   }
 }
 
@@ -1914,6 +1927,7 @@ static int rsa_rsassa_pss_sign_no_mode_check(mbedtls_rsa_context *ctx,
                                              int saltlen,
                                              unsigned char *sig)
 {
+  (void) saltlen;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED; /* Final return value */
   cmox_rsa_retval_t retval = 0;                  /* STCryptoLib return value */
   size_t computed_size = 0;                      /* Size of computed signature */
@@ -2144,7 +2158,7 @@ static int rsa_rsassa_pss_sign(mbedtls_rsa_context *ctx,
     return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
   }
 
-  if ((ctx->hash_id == MBEDTLS_MD_NONE) && (md_alg == MBEDTLS_MD_NONE))
+  if ((ctx->hash_id == (int)MBEDTLS_MD_NONE) && (md_alg == MBEDTLS_MD_NONE))
   {
     return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
   }
@@ -2207,6 +2221,8 @@ int mbedtls_rsa_rsassa_pkcs1_v15_sign(mbedtls_rsa_context *ctx,
                                       unsigned int hashlen, const unsigned char *hash,
                                       unsigned char *sig)
 {
+  (void) f_rng;
+  (void) p_rng;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED; /* Final return value */
   cmox_rsa_retval_t retval = 0;                    /* STCryptoLib return value */
   size_t computed_size = 0;                        /* Size of computed signature */
@@ -2417,16 +2433,19 @@ int mbedtls_rsa_pkcs1_sign(mbedtls_rsa_context *ctx,
     case MBEDTLS_RSA_PKCS_V15:
       return mbedtls_rsa_rsassa_pkcs1_v15_sign(ctx, f_rng, p_rng, md_alg,
                                                hashlen, hash, sig);
+      break;
 #endif /* MBEDTLS_PKCS1_V15 */
 
 #if defined(MBEDTLS_PKCS1_V21)
     case MBEDTLS_RSA_PKCS_V21:
       return mbedtls_rsa_rsassa_pss_sign(ctx, f_rng, p_rng, md_alg,
                                          hashlen, hash, sig);
+      break;
 #endif /* MBEDTLS_PKCS1_V21 */
 
     default:
       return MBEDTLS_ERR_RSA_INVALID_PADDING;
+      break;
   }
 }
 
@@ -2442,6 +2461,7 @@ int mbedtls_rsa_rsassa_pss_verify_ext(mbedtls_rsa_context *ctx,
                                       int expected_salt_len,
                                       const unsigned char *sig)
 {
+  (void) mgf1_hash_id;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED; /* Final return value */
   cmox_rsa_retval_t retval = 0;              /* STCryptoLib return value */
   cmox_rsa_pkcs1v22_hash_t p_hash_id = 0;    /* Hash id for cmox operation */
@@ -2548,7 +2568,7 @@ int mbedtls_rsa_rsassa_pss_verify(mbedtls_rsa_context *ctx,
     return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
   }
 
-  mgf1_hash_id = (ctx->hash_id != MBEDTLS_MD_NONE)
+  mgf1_hash_id = (ctx->hash_id != (int)MBEDTLS_MD_NONE)
                  ? (mbedtls_md_type_t) ctx->hash_id
                  : md_alg;
 
@@ -2671,7 +2691,7 @@ int mbedtls_rsa_pkcs1_verify(mbedtls_rsa_context *ctx,
                              const unsigned char *hash,
                              const unsigned char *sig)
 {
-  if ((md_alg != MBEDTLS_MD_NONE || hashlen != 0) && hash == NULL)
+  if (((md_alg != MBEDTLS_MD_NONE) || (hashlen != 0U)) && (hash == NULL))
   {
     return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
   }
@@ -2682,16 +2702,19 @@ int mbedtls_rsa_pkcs1_verify(mbedtls_rsa_context *ctx,
     case MBEDTLS_RSA_PKCS_V15:
       return mbedtls_rsa_rsassa_pkcs1_v15_verify(ctx, md_alg,
                                                  hashlen, hash, sig);
+      break;
 #endif  /* MBEDTLS_PKCS1_V15 */
 
 #if defined(MBEDTLS_PKCS1_V21)
     case MBEDTLS_RSA_PKCS_V21:
       return mbedtls_rsa_rsassa_pss_verify(ctx, md_alg,
                                            hashlen, hash, sig);
+      break;
 #endif  /* MBEDTLS_PKCS1_V21 */
 
     default:
       return MBEDTLS_ERR_RSA_INVALID_PADDING;
+      break;
   }
 }
 

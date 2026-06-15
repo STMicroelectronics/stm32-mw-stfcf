@@ -1,0 +1,63 @@
+{{assign "jsonFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "STFCF"}')~}}
+{{assign 'data' (@root.SWConfigurationAPI.getInstancesConfiguration @root.jsonFilter)~}}
+{{assign "instance_0" @root.data.[0]~}}
+{{assign "stfcf_configs" @root.instance_0.settings.parameters ~}}
+{{log "stfcf_configs" @root.instance_0.settings.parameters ~}}
+
+{{#with @root.stfcf_configs}}
+/**
+  ******************************************************************************
+  * file    mx_stfcf_config.h
+  * brief   ST Flexible Crypto Framework configuration options.
+  *         This allows to include only required configuration files depending on
+  *         selected features, and reduce the global memory footprint.
+  {{!-- ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */ --}}
+{{> LICENSE}}
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#ifndef MX_STFCF_CONFIG_H
+#define MX_STFCF_CONFIG_H
+
+/* Includes ------------------------------------------------------------------*/
+#include "mx_mbedtls_config.h"
+#include "mx_mbedtls_alt_config.h"
+{{#if (helper_stfcf_mbedtlsconfig_kwe_enabled @root.stfcf_configs) }}
+#include "mx_kwe_config.h"
+{{/if}}
+
+#if defined(STFCF_USER_CONFIG_FILE)
+#include STFCF_USER_CONFIG_FILE
+#endif /* STFCF_USER_CONFIG_FILE */
+
+{{#if (helper_stfcf_mbedtlsconfig_kwe_enabled @root.stfcf_configs) }}
+#define MBEDTLS_ALLOW_PRIVATE_ACCESS
+#include "kwe_psa_driver_key_management.h"
+
+/* Exported constants --------------------------------------------------------*/
+#define STFCF_KEY_LOCATION PSA_CRYPTO_KWE_DRIVER_LOCATION
+{{else}}
+
+/* Exported constants --------------------------------------------------------*/
+#define STFCF_KEY_LOCATION PSA_KEY_LOCATION_LOCAL_STORAGE
+{{/if}}
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* MX_STFCF_CONFIG_H */
+{{/with}}

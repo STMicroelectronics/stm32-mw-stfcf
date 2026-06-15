@@ -127,6 +127,7 @@ int mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
 
 int mbedtls_sha256_update(mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen)
 {
+  (void) ctx;
   /* HASH update process in polling mode with several input buffers. */
   if (HAL_HASH_Update(pHASH, (const uint8_t *)(input), ilen, ST_SHA256_TIMEOUT) != HAL_OK)
   {

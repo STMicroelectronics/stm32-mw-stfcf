@@ -19,6 +19,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "entropy_hardware_alt.h"
+#include "mbedtls/entropy.h"
+#include "entropy_poll.h"
 #if defined (MBEDTLS_HAL_ENTROPY_HARDWARE_ALT)
 #if defined(MBEDTLS_ENTROPY_C)
 #include "mbedtls/platform.h"
@@ -35,10 +37,10 @@ static hal_rng_handle_t *pENTROPY = NULL;
 static void GetRandomBytes(uint8_t *output, size_t req_len, size_t *output_len);
 
 
-int32_t mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
+int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
 {
   uint32_t rng_attempts = 0;
-  int32_t return_status = 0;
+  int return_status = 0;
 
   /* This parameter is not used in this implementation */
   (void)data; /* prevent "unused variable" warnings */

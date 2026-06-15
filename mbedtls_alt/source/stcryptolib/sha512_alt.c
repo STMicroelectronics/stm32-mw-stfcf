@@ -73,8 +73,7 @@ void mbedtls_sha512_init(mbedtls_sha512_context *ctx)
   cmox_init_arg_t init_arg;
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
-
+  (void)cmox_initialize(&init_arg);
 }
 
 void mbedtls_sha512_free(mbedtls_sha512_context *ctx)
@@ -131,6 +130,8 @@ int mbedtls_sha512_starts(mbedtls_sha512_context *ctx, int is384)
 
 int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx, const unsigned char data[128])
 {
+  (void) ctx;
+  (void) data;
   return MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
 }
 

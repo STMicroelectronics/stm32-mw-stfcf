@@ -61,8 +61,7 @@ void mbedtls_chachapoly_init(mbedtls_chachapoly_context *ctx)
   cmox_init_arg_t init_arg;
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
-
+  (void)cmox_initialize(&init_arg);
 }
 
 int mbedtls_chachapoly_setkey(mbedtls_chachapoly_context *ctx, const unsigned char key[32])

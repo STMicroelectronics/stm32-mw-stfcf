@@ -31,11 +31,11 @@
 <div class="col-sm-12 col-lg-8">
 <h1 id="update-history">Update History</h1>
 <div class="collapse">
-<input type="checkbox" id="collapse-section1" checked aria-hidden="true"> <label for="collapse-section1" aria-hidden="true"><strong>2.0.0 / 13-March-2026</strong></label>
+<input type="checkbox" id="collapse-section2" checked aria-hidden="true"> <label for="collapse-section2" aria-hidden="true"><strong>2.1.0 / 05-June-2026</strong></label>
 <div>
 <h2 id="main-changes">Main Changes</h2>
 <ul>
-<li>First official release of STFCF (STM32 Flexible Crypto Framework) SW Pack.</li>
+<li>Miscellaneous update of .config files.</li>
 </ul>
 <h2 id="contents">Contents</h2>
 <ul>
@@ -59,9 +59,49 @@
 </ul>
 <h2 id="backward-compatibility">Backward Compatibility</h2>
 <ul>
-<li>None.</li>
+<li>Fully compatible with previous version.</li>
 </ul>
 <h2 id="dependencies">Dependencies</h2>
+<ul>
+<li>MbedTLS SW Pack V2.0.0</li>
+<li>STCryptoLib SW Pack V2.0.0</li>
+<li>STM32C5xx HAL Drivers V2.0.0</li>
+<li>STM32CubeMX2 V1.0.1</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section1" aria-hidden="true"> <label for="collapse-section1" aria-hidden="true"><strong>2.0.0 / 13-March-2026</strong></label>
+<div>
+<h2 id="main-changes-1">Main Changes</h2>
+<ul>
+<li>First official release of STFCF (STM32 Flexible Crypto Framework) SW Pack.</li>
+</ul>
+<h2 id="contents-1">Contents</h2>
+<ul>
+<li>ST implementations (HAL and STCryptoLib) for MbedTLS alternative interfaces covering large cryptographic algorithms.</li>
+<li>Key Wrap Engine drivers enabling secure cryptographic operations on STM32 hardware accelerators using symmetric and asymmetric wrapped keys.</li>
+<li>Ready to use configuration files.</li>
+</ul>
+<h2 id="known-limitations-1">Known Limitations</h2>
+<ul>
+<li>None.</li>
+</ul>
+<h2 id="development-toolchains-and-compilers-1">Development Toolchains and Compilers</h2>
+<ul>
+<li>IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK</li>
+<li>MDK-ARM Keil uVision V5.42</li>
+<li>STM32CubeIDE for Visual Studio Code (GCC13 compiler)</li>
+</ul>
+<h2 id="supported-devices-and-boards-1">Supported devices and boards</h2>
+<ul>
+<li>STM32C5 series.</li>
+</ul>
+<h2 id="backward-compatibility-1">Backward Compatibility</h2>
+<ul>
+<li>None.</li>
+</ul>
+<h2 id="dependencies-1">Dependencies</h2>
 <ul>
 <li>MbedTLS SW Pack V2.0.0</li>
 <li>STCryptoLib SW Pack V2.0.0</li>

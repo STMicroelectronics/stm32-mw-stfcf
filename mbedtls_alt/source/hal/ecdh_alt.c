@@ -58,12 +58,17 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
                                            void *p_rng,
                                            mbedtls_ecp_restart_ctx *rs_ctx)
 {
-  hal_pka_ecc_mul_protect_config_t ECDH_input = {0};            /* ECDSA Curve struct */
-  hal_pka_ecc_mul_protect_result_t ECDH_ouput = {0};            /* ECDSA point = shared secret */
+  (void) f_rng;
+  (void) p_rng;
+  (void) rs_ctx;
+  hal_pka_ecc_mul_protect_config_t ECDH_input = {0};    /* ECDSA Curve struct */
+  hal_pka_ecc_mul_protect_result_t ECDH_ouput = {0};    /* ECDSA point = shared secret */
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;      /* MBED return value */
   uint8_t *d_binary = NULL;                             /* Pointer to private key */
   size_t olen = 0;                                      /* Length of the point, internal use */
   uint8_t *Q_binary = NULL;                             /* Pointer to public key */
+  uint32_t padding_size = 0U;
+  uint32_t size_byte = 0U;
   hal_pka_handle_t *pPKA = NULL;                        /* PKA handle Pointer */
   pPKA = mx_stfcf_mbedtls_alt_hal_pka_gethandle();
 
@@ -112,7 +117,18 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
   MBEDTLS_MPI_CHK_ECDH_ALT((ECDH_ouput.p_pt_y == NULL) ? MBEDTLS_ERR_ECP_ALLOC_FAILED : 0);
 
   /* Copy the results to user specified space */
-  HAL_PKA_ECC_GetResultMulProtect(pPKA, &ECDH_ouput);
+  size_byte = HAL_PKA_ECC_GetResultMulProtect(pPKA, &ECDH_ouput);
+  if ((size_byte == 0U) || (size_byte > grp->st_order_size))
+  {
+    return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+  }
+  /* Left pad result to fixed size */
+  if (size_byte < grp->st_order_size)
+  {
+    padding_size = grp->st_order_size - size_byte;
+    (void) memmove(ECDH_ouput.p_pt_x + padding_size, ECDH_ouput.p_pt_x, size_byte);
+    (void) memset(ECDH_ouput.p_pt_x, 0, padding_size);
+  }
 
   /* Convert the signature into mpi format */
   MBEDTLS_MPI_CHK_ECDH_ALT(mbedtls_mpi_read_binary(z, ECDH_ouput.p_pt_x, grp->st_order_size));

@@ -175,14 +175,9 @@ static int mbedtls_aes_xts_decode_keys(const unsigned char *key,
   const unsigned int half_keybits = keybits / 2U;
   const unsigned int half_keybytes = half_keybits / 8U;
 
-  switch (keybits)
+  if ((keybits != 256) && (keybits != 512))
   {
-    case 256:
-      break;
-    case 512:
-      break;
-    default:
-      return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
+    return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
   }
 
   *key1bits = half_keybits;
@@ -322,7 +317,7 @@ int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
 
   __ALIGN_BEGIN static uint32_t iv_32B[4] __ALIGN_END;
 
-  if (length % 16)
+  if ((length % 16U) != 0U)
   {
     return MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH;
   }
@@ -746,6 +741,8 @@ int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
                           const unsigned char *input,
                           unsigned char *output)
 {
+  (void) nc_off;
+  (void) stream_block;
   size_t in_length = 0;
   size_t last_bytes = 0;
   __ALIGN_BEGIN static uint32_t iv_32B[4] __ALIGN_END;
@@ -784,6 +781,7 @@ int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
 
     default:
       return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
+      break;
   }
 
   if (HAL_CRYP_SetDataSwapping(pCRYP, HAL_CRYP_DATA_SWAPPING_BYTE) != HAL_OK)
@@ -815,6 +813,7 @@ int mbedtls_internal_aes_encrypt(mbedtls_aes_context *ctx,
                                  const unsigned char input[16],
                                  unsigned char output[16])
 {
+  (void) ctx;
   if (HAL_CRYP_Encrypt(pCRYP, (const uint32_t *)input, 16, (uint32_t *)output, ST_CRYP_TIMEOUT) != HAL_OK)
   {
     return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
@@ -827,6 +826,7 @@ int mbedtls_internal_aes_decrypt(mbedtls_aes_context *ctx,
                                  const unsigned char input[16],
                                  unsigned char output[16])
 {
+  (void) ctx;
   if (HAL_CRYP_Decrypt(pCRYP, (const uint32_t *)input, 16, (uint32_t *)output, ST_CRYP_TIMEOUT) != HAL_OK)
   {
     return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;

@@ -82,6 +82,7 @@ int mbedtls_gcm_setkey(mbedtls_gcm_context *ctx,
                        const unsigned char *key,
                        unsigned int keybits)
 {
+  (void) cipher;
   int ret = 0;
   unsigned int i = 0;
   if (keybits == HAL_CRYP_KEY_SIZE_192)
@@ -213,7 +214,7 @@ int mbedtls_gcm_update(mbedtls_gcm_context *ctx,
                        unsigned char *output, size_t output_size,
                        size_t *output_length)
 {
-
+  (void) output_size;
   uint16_t wordnb = 0;          /* number of four data words */
   uint16_t wordlen = 0;         /* length (in bytes) of four data words */
   uint16_t in_datalen = 0;  /* length (in bytes) of processed data within input buffer */
@@ -326,6 +327,9 @@ int mbedtls_gcm_finish(mbedtls_gcm_context *ctx,
                        size_t *output_length,
                        unsigned char *tag, size_t tag_len)
 {
+  (void) output;
+  (void) output_size;
+  (void) output_length;
   __ALIGN_BEGIN uint8_t mac[16]      __ALIGN_END; /* temporary mac */
 
   if ((tag_len > 16U) || (tag_len < 4U))

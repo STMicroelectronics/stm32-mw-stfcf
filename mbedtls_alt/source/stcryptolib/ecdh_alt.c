@@ -180,6 +180,9 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
                                            void *p_rng,
                                            mbedtls_ecp_restart_ctx *rs_ctx)
 {
+  (void) f_rng;
+  (void) p_rng;
+  (void) rs_ctx;
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
   cmox_ecc_retval_t retval;             /* STCryptoLib return value */
   cmox_ecc_impl_t curve_id = 0;         /* Curve ID for STCryptoLib */
@@ -231,7 +234,10 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
   /* Init the STCryptoLib */
   init_arg.target = CMOX_INIT_TARGET_AUTO;
   init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
+  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
+  {
+    return -1;
+  }
 
   cmox_ecc_construct(&ecc_ctx, CMOX_MATH_FUNCS_FAST, p_working_buffer, buff_size);
 
@@ -248,14 +254,14 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
 
   MBEDTLS_MPI_CHK_ECDH_ALT(mbedtls_mpi_write_binary(d, p_private_key, priv_key_size));
 
-  p_public_key = mbedtls_calloc(2U * order_size + 1U, sizeof(uint8_t));
+  p_public_key = mbedtls_calloc((2U * order_size) + 1U, sizeof(uint8_t));
 
   if (p_public_key == NULL)
   {
     return MBEDTLS_ERR_MPI_ALLOC_FAILED;
   }
 
-  key_size = 2U * order_size + 1U;
+  key_size = (2U * order_size) + 1U;
 
   /* Convert public key to an array */
   MBEDTLS_MPI_CHK_ECDH_ALT(mbedtls_ecp_point_write_binary(grp, Q, MBEDTLS_ECP_PF_UNCOMPRESSED,

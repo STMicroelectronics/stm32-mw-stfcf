@@ -217,13 +217,13 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
   uint8_t a_digest[66] ; /* Local digest after rework input digest, 66 is the maximum order size supported */
 
   /* Fail cleanly on curves such as Curve25519 that can't be used for ECDSA */
-  if (! mbedtls_ecdsa_can_do(grp->id) || grp->N.MBEDTLS_PRIVATE(p) == NULL)
+  if ((mbedtls_ecdsa_can_do(grp->id) == 0) || (grp->N.MBEDTLS_PRIVATE(p) == NULL))
   {
     return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
   }
 
   /* Make sure d is in range 1..n-1 */
-  if (mbedtls_mpi_cmp_int(d, 1) < 0 || mbedtls_mpi_cmp_mpi(d, &grp->N) >= 0)
+  if ((mbedtls_mpi_cmp_int(d, 1) < 0) || (mbedtls_mpi_cmp_mpi(d, &grp->N) >= 0))
   {
     return MBEDTLS_ERR_ECP_INVALID_KEY;
   }
@@ -264,7 +264,10 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
 
   ECDSA_SignIn.p_integer = k_binary;
 
-  HAL_PKA_RAMMassErase(pPKA);
+  if (HAL_PKA_RAMMassErase(pPKA) != HAL_OK)
+  {
+    return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+  }
 
   if (HAL_PKA_ECDSA_SetConfigSignatureProtect(pPKA, &ECDSA_SignIn) != HAL_OK)
   {
@@ -290,7 +293,10 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
   MBEDTLS_MPI_CHK_ECSDA_ALT((outext.p_pt_y == NULL) ? MBEDTLS_ERR_ECP_ALLOC_FAILED : 0);
 
   /* Get the signature into allocated space */
-  HAL_PKA_ECDSA_GetResultSignatureProtect(pPKA, &ECDSA_SignOut, &outext);
+  if (HAL_PKA_ECDSA_GetResultSignatureProtect(pPKA, &ECDSA_SignOut, &outext) == 0U)
+  {
+    return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+  }
 
   /* Convert the signature into mpi format */
   MBEDTLS_MPI_CHK_ECSDA_ALT(mbedtls_mpi_read_binary(r, ECDSA_SignOut.p_r_sign, grp->st_order_size));
@@ -411,8 +417,8 @@ int mbedtls_ecdsa_verify(mbedtls_ecp_group *grp,
   }
 
   /* Make sure r and s are in range 1..n-1 */
-  if (mbedtls_mpi_cmp_int(r, 1) < 0 || mbedtls_mpi_cmp_mpi(r, &grp->N) >= 0
-      || mbedtls_mpi_cmp_int(s, 1) < 0 || mbedtls_mpi_cmp_mpi(s, &grp->N) >= 0)
+  if ((mbedtls_mpi_cmp_int(r, 1) < 0) || (mbedtls_mpi_cmp_mpi(r, &grp->N) >= 0)
+      || (mbedtls_mpi_cmp_int(s, 1) < 0) || (mbedtls_mpi_cmp_mpi(s, &grp->N) >= 0))
   {
     return MBEDTLS_ERR_ECP_VERIFY_FAILED;
   }
@@ -455,7 +461,10 @@ int mbedtls_ecdsa_verify(mbedtls_ecp_group *grp,
   MBEDTLS_MPI_CHK_ECSDA_ALT(mbedtls_mpi_write_binary(s, s_binary, grp->st_order_size));
   ECDSA_VerifyIn.p_s_sign = s_binary;
 
-  HAL_PKA_RAMMassErase(pPKA);
+  if (HAL_PKA_RAMMassErase(pPKA) != HAL_OK)
+  {
+    return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+  }
 
   if (HAL_PKA_ECDSA_SetConfigVerifSignature(pPKA, &ECDSA_VerifyIn) != HAL_OK)
   {
@@ -468,7 +477,10 @@ int mbedtls_ecdsa_verify(mbedtls_ecp_group *grp,
   }
 
   /* Check the result */
-  HAL_PKA_ECDSA_IsValidVerifSignature(pPKA);
+  if (HAL_PKA_ECDSA_IsValidVerifSignature(pPKA) == PKA_ECDSA_SIGNATURE_NOT_VALID)
+  {
+    return MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+  }
 
 #if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
   /* Double the signature verification (using another way) to resist to basic HW attacks.

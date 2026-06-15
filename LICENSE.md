@@ -78,7 +78,6 @@ To apply the Apache License to your work, attach the following boilerplate notic
    See the License for the specific language governing permissions and
    limitations under the License.
 
----
 
 <!-- End of License terms -->
 <BR>
