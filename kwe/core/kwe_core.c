@@ -865,7 +865,7 @@ static kwe_status_t KWE_AES_UnwrapKey(
   *                        data.
   * @param  ciphertext_size : Size of the Output buffer in bytes.
   * @param  p_ciphertext_length : The size of the actual output cipher in bytes.
-  * @param  tag_length : The size of the authentication tag in bytes.
+  * @param  tag_length : The size of the authentication tag in bytes, maximum is 16 bytes.
   * @retval KWE_SUCCESS if success, an error code otherwise
   */
 kwe_status_t KWE_AeadEncrypt(
@@ -879,7 +879,7 @@ kwe_status_t KWE_AeadEncrypt(
 {
   pSAES = mx_stfcf_kwe_saes_gethandle();
   kwe_status_t status = KWE_ERROR;
-  uint8_t init_vect[16] = {0};
+  __ALIGN_BEGIN uint8_t init_vect[16] __ALIGN_END = {0};
   uint32_t *p_iv  = (uint32_t *)init_vect;
   uint32_t i = 0;
   size_t len_left = 0;
@@ -887,7 +887,7 @@ kwe_status_t KWE_AeadEncrypt(
   unsigned char *b1_padded_addr = NULL;             /* Formatting of B1  */
   size_t b1_length = 0;                             /* B1 with padding   */
   uint8_t b1_padding = 0;                           /* B1 word alignment */
-  __ALIGN_BEGIN uint8_t tag[16]      __ALIGN_END;   /* temporary tag     */
+  __ALIGN_BEGIN uint8_t tag[16] __ALIGN_END = {0};  /* temporary tag     */
 
   if ((((uint64_t) additional_data_length >> 61U) != 0U) || (nonce_length > 16U))
   {
@@ -930,11 +930,14 @@ kwe_status_t KWE_AeadEncrypt(
       goto exit;
     }
 
-    /* Compute the authentication TAG */
-    if (HAL_AES_GCM_GenerateAuthTAG(pSAES, (uint32_t *)(p_ciphertext + plaintext_length), KWE_TIMEOUT_VALUE) != HAL_OK)
+    /* Compute the authentication TAG in an aligned buffer: (p_ciphertext + plaintext_length) is not
+       guaranteed to be 4-byte aligned since plaintext_length is an arbitrary byte length */
+    if (HAL_AES_GCM_GenerateAuthTAG(pSAES, (uint32_t *) tag, KWE_TIMEOUT_VALUE) != HAL_OK)
     {
       goto exit;
     }
+
+    (void) memcpy((p_ciphertext + plaintext_length), tag, tag_length);
   }
 
   else if ((alg == KWE_ALG_AES_CCM) && (additional_data_length != 0U))
@@ -1011,9 +1014,6 @@ kwe_status_t KWE_AeadEncrypt(
       goto exit;
     }
 
-    /* Tag has a variable length */
-    (void) memset(tag, 0, sizeof(tag));
-
     /* Compute the authentication TAG */
     if (HAL_AES_CCM_GenerateAuthTAG(pSAES, (uint32_t *) tag, KWE_TIMEOUT_VALUE) != HAL_OK)
     {
@@ -1077,10 +1077,10 @@ kwe_status_t KWE_AeadDecrypt(
 {
   pSAES = mx_stfcf_kwe_saes_gethandle();
   kwe_status_t status = KWE_ERROR;
-  uint8_t init_vect[16] = {0};
+  __ALIGN_BEGIN uint8_t init_vect[16] __ALIGN_END = {0};
   uint32_t *p_iv  = (uint32_t *)init_vect;
   __ALIGN_BEGIN uint8_t work_buf[16] __ALIGN_END;
-  uint8_t check_tag[16] = {0};
+  __ALIGN_BEGIN uint8_t check_tag[16] __ALIGN_END = {0};
   size_t cipher_length = 0U;
   size_t cipher_block_size = 0U;
   size_t last_bytes = 0;

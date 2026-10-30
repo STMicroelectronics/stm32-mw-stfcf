@@ -63,12 +63,6 @@
 void mbedtls_ccm_init(mbedtls_ccm_context *ctx)
 {
   (void)memset(ctx, 0, sizeof(mbedtls_ccm_context));
-
-  /* Init the STCryptoLib */
-  cmox_init_arg_t init_arg;
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  cmox_initialize(&init_arg);
 }
 
 int mbedtls_ccm_setkey(mbedtls_ccm_context *ctx,

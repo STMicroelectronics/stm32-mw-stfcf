@@ -277,6 +277,7 @@ int mbedtls_ccm_update_ad(mbedtls_ccm_context *ctx,
   size_t b1_length = 0;                            /* B1 with padding    */
   unsigned int b1_padding = 0;                          /* B1 word alignment  */
 
+  /* Return an error if the context is already in an error state */
   if ((ctx->state & CCM_STATE__ERROR) != 0U)
   {
     return MBEDTLS_ERR_CCM_BAD_INPUT;
@@ -408,7 +409,6 @@ exit:
   }
   return ret;
 }
-
 /**
   * @brief feeds an input buffer into an ongoing CCM encryption or decryption operation.
   */
@@ -417,6 +417,7 @@ int mbedtls_ccm_update(mbedtls_ccm_context *ctx,
                        unsigned char *output, size_t output_size,
                        size_t *output_len)
 {
+  /* Return an error if the context is already in an error state */
   if ((ctx->state & CCM_STATE__ERROR) != 0U)
   {
     return MBEDTLS_ERR_CCM_BAD_INPUT;
@@ -440,7 +441,8 @@ int mbedtls_ccm_update(mbedtls_ccm_context *ctx,
   pCCM->data_size_sum_byte = 12U;
 
   /* blocks (B) associated to the plaintext message (P) */
-  if ((ctx->mode == MBEDTLS_CCM_ENCRYPT) || (ctx->mode == MBEDTLS_CCM_STAR_ENCRYPT))
+  if ((ctx->mode == MBEDTLS_CCM_ENCRYPT)
+      || (ctx->mode == MBEDTLS_CCM_STAR_ENCRYPT))
   {
     /* Encrypt user data in polling mode */
     if (HAL_AES_Encrypt(pCCM,
@@ -469,34 +471,29 @@ int mbedtls_ccm_update(mbedtls_ccm_context *ctx,
     }
   }
 
-
   return 0;
 }
-
 /**
   * @brief  This function finishes the CCM operation and generates the authentication tag.
   */
 int mbedtls_ccm_finish(mbedtls_ccm_context *ctx,
-                       unsigned char *output, size_t output_size, size_t *ciphertext_length,
                        unsigned char *tag, size_t tag_len)
 {
-  (void) output;
-  (void) output_size;
-  (void) ciphertext_length;
   __ALIGN_BEGIN uint8_t mac[16]      __ALIGN_END;  /* temporary mac */
 
-  if ((ctx->state & CCM_STATE__ERROR) != 0U)
+  if (ctx->state & CCM_STATE__ERROR)
   {
     return MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
   }
 
-  if ((ctx->add_len > 0U) && !((ctx->state & CCM_STATE__AUTH_DATA_FINISHED) != 0U))
+  /* Reject input when associated data has already been finalized */
+  if (ctx->add_len > 0 && !(ctx->state & CCM_STATE__AUTH_DATA_FINISHED))
   {
     return MBEDTLS_ERR_CCM_BAD_INPUT;
   }
 
   /* Tag has a variable length */
-  (void) memset(mac, 0, sizeof(mac));
+  memset(mac, 0, sizeof(mac));
 
   /* Generate the authentication TAG */
   if (HAL_AES_CCM_GenerateAuthTAG(pCCM, (uint32_t *)mac, ST_CRYP_TIMEOUT) != HAL_OK)
@@ -506,6 +503,7 @@ int mbedtls_ccm_finish(mbedtls_ccm_context *ctx,
 
   if (tag != NULL)
   {
+    /* Copy MAC bytes into tag buffer */
     (void) memcpy(tag, mac, tag_len);
   }
 
@@ -529,24 +527,28 @@ static int ccm_auth_crypt(mbedtls_ccm_context *ctx, int mode, size_t length,
   int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
   size_t olen;
 
+  /* Starts a CCM encryption or decryption operation. */
   ret = mbedtls_ccm_starts(ctx, mode, iv, iv_len);
   if (ret != 0)
   {
     return ret;
   }
 
+  /* Declares the lengths of the message and additional data for a CCM encryption or decryption operation.*/
   ret = mbedtls_ccm_set_lengths(ctx, add_len, length, tag_len);
   if (ret != 0)
   {
     return ret;
   }
 
+  /* Feeds an input buffer as associated data in a CCM encryption or decryption operation. */
   ret = mbedtls_ccm_update_ad(ctx, add, add_len);
   if (ret != 0)
   {
     return ret;
   }
 
+  /* Feeds an input buffer into an ongoing CCM encryption or decryption operation.*/
   ret = mbedtls_ccm_update(ctx, input, length,
                            output, length, &olen);
   if (ret != 0)
@@ -554,12 +556,11 @@ static int ccm_auth_crypt(mbedtls_ccm_context *ctx, int mode, size_t length,
     return ret;
   }
 
-  ret = mbedtls_ccm_finish(ctx, output, length, &olen, tag, tag_len);
-  if (ret != 0)
+  /* Finishes the CCM operation and generates the authentication tag.*/
+  if ((ret = mbedtls_ccm_finish(ctx, tag, tag_len)) != 0)
   {
     return ret;
   }
-
   return 0;
 }
 /** @endcond */

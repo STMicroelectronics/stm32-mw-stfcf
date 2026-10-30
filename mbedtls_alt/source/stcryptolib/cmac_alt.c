@@ -76,15 +76,6 @@ int mbedtls_cipher_cmac_starts(mbedtls_cipher_context_t *ctx, const unsigned cha
 
   ctx->MBEDTLS_PRIVATE(cmac_ctx) = cmac_ctx_int;
 
-  /* Init the STCryptoLib */
-  cmox_init_arg_t init_arg;
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
-  {
-    return -1;
-  }
-
   ctx->MBEDTLS_PRIVATE(cmac_ctx)->mac_ctx = cmox_cmac_construct(&ctx->MBEDTLS_PRIVATE(cmac_ctx)->cmac_ctx,
                                                                 CMOX_CMAC_AES);
 

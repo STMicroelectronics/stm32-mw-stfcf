@@ -7,17 +7,26 @@
       <stm32:pack type="MW" friendlyName="stfcf" shortDesc="STM32 Flexible Crypto Framework middleware">
         <relocation-info parent="middleware" layer="" element=""/>
         <compatibility>
+          <release version="3.0.0">
+            <applicable-schema schemaType="sw-configuration" schemaVersion="3.8.0"/>
+            <applicable-api-group apiType="codegen-getters">
+              <applicable-api apiType="peripheralsResourceManagerAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWProjectAPI" apiVersion="1.0.0"/>
+            </applicable-api-group>
+          </release>
+          <release version="2.1.1">
+            <applicable-schema schemaType="sw-configuration" schemaVersion="3.8.0"/>
+            <applicable-api-group apiType="codegen-getters">
+              <applicable-api apiType="peripheralsResourceManagerAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWProjectAPI" apiVersion="1.0.0"/>
+            </applicable-api-group>
+          </release>
           <release version="2.1.0">
             <applicable-schema schemaType="sw-configuration" schemaVersion="3.8.0"/>
             <applicable-api-group apiType="codegen-getters">
-              <applicable-api apiType="clockAPI" apiVersion="1.0.0"/>
-              <applicable-api apiType="DmaAPI" apiVersion="1.0.0"/>
-              <applicable-api apiType="EnvVarAPI" apiVersion="1.0.0"/>
-              <applicable-api apiType="ExtiAPI" apiVersion="1.0.0"/>
-              <applicable-api apiType="hwPlatformAPI" apiVersion="1.0.0"/>
-              <applicable-api apiType="NvicAPI" apiVersion="1.0.0"/>
               <applicable-api apiType="peripheralsResourceManagerAPI" apiVersion="1.0.0"/>
-              <applicable-api apiType="pinoutAPI" apiVersion="1.0.0"/>
               <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
               <applicable-api apiType="SWProjectAPI" apiVersion="1.0.0"/>
             </applicable-api-group>
@@ -53,6 +62,12 @@
   <repository type="git">https://github.com/STMicroelectronics/stm32-mw-stfcf/tree/hal2</repository>
   <supportContact/>
   <releases>
+    <release version="3.0.0" date="2026-09-25">
+      Add Software resources management.
+    </release>
+    <release version="2.1.1" date="2026-07-03">
+      Enhance helpers description.
+    </release>
     <release version="2.1.0" date="2026-06-05">
       Add support of configuration.
     </release>
@@ -205,13 +220,9 @@
   </generators>
   <!-- Components definition -->
   <components>
-    <!-- Mbed TLS Configuration -->
-    <component generator="stfcf_mx2codegen" Cclass="Security" Cgroup="STM32CubeMX2 Config" Csub="STFCF" Cversion="1.0.0" condition="STFCF config condition">
+    <!-- STMicroelectronics MW STFCF Configuration and Code Generation -->
+    <component generator="stfcf_mx2codegen" Cclass="Security" Cgroup="STM32CubeMX2 Config" Csub="STFCF" Cversion="1.1.0" condition="STFCF config condition">
       <description>STM32CubeMX2 Configuration and Code Generation for the STM32 Flexible Crypto Framework (STFCF) middleware</description>
-      <Pre_Include_Global_h>
-/* Enabling global STFCF configuration file */
-#define MBEDTLS_CONFIG_FILE "mx_stfcf_config.h"
-      </Pre_Include_Global_h>
       <environments>
         <environment name="STM32Cube">
           <stm32:component>
@@ -237,6 +248,10 @@
     <!-- PSA crypto interface to Mbed TLS middleware -->
     <component Cclass="Security" Cgroup="STFCF" Csub="PSA API" Cversion="1.0.0" condition="PSA interface conditions">
       <description>High level Interface, Platform Security Architecture, as entry point; Link directly the PSA API of Mbed TLS</description>
+      <Pre_Include_Global_h>
+/* Enabling global STFCF configuration file */
+#define MBEDTLS_CONFIG_FILE "mx_stfcf_config.h"
+      </Pre_Include_Global_h>
       <files>
         <file category="doc" name="LICENSE.md"/>
         <file category="doc" name="LICENSE.html"/>

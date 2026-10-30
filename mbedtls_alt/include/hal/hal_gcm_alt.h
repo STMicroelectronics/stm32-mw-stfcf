@@ -70,6 +70,7 @@ typedef struct mbedtls_gcm_context
   int mode;                             /* The operation to perform:
                                                #MBEDTLS_GCM_ENCRYPT or
                                                #MBEDTLS_GCM_DECRYPT.             */
+  uint64_t remain_len;           /*! remain length of the non encrypted data. */
 }
 mbedtls_gcm_context;
 

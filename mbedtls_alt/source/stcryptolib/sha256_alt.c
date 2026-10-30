@@ -69,12 +69,6 @@ static void mbedtls_zeroize(void *value, size_t size)
 void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
 {
   mbedtls_zeroize(ctx, sizeof(mbedtls_sha256_context));
-  /* Init the STCryptoLib */
-  cmox_init_arg_t init_arg;
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  (void)cmox_initialize(&init_arg);
-
 }
 
 void mbedtls_sha256_free(mbedtls_sha256_context *ctx)

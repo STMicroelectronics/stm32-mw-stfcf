@@ -135,12 +135,6 @@ static void mbedtls_zeroize(void *value, size_t size)
 void mbedtls_aes_init(mbedtls_aes_context *ctx)
 {
   (void)memset(ctx, 0, sizeof(mbedtls_aes_context));
-  /* Init the STCryptoLib */
-  cmox_init_arg_t init_arg;
-
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  (void)cmox_initialize(&init_arg);
 }
 
 void mbedtls_aes_free(mbedtls_aes_context *ctx)

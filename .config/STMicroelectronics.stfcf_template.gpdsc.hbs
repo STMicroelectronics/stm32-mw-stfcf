@@ -17,7 +17,6 @@
 {{assign 'data' (@root.SWConfigurationAPI.getInstancesConfiguration @root.jsonFilter)~}}
 {{assign "instance_0" @root.data.[0]~}}
 {{assign "configs" @root.instance_0.settings.parameters ~}}
-{{log 'configs_gpdsc' @root.configs~}}
 
 {{assign 'MY_SW_Instances' (@root.SWConfigurationAPI.getInstances "STMicroelectronics::Security:STM32CubeMX2 Config:STFCF")~}}
 {{log 'MY_SW_Instances' @root.MY_SW_Instances~}}
@@ -28,8 +27,6 @@
 
 {{#each @root.MY_SW_Instances~}}
 {{assign 'mystfcf' (@root.SWConfigurationAPI.getInstanceConfiguration this)~}}
-{{log "mystfcf" @root.mystfcf~}}
-{{log "mystfcf" @root.mystfcf.settings~}}
 {{log "mystfcf.settings.parameters" @root.mystfcf.settings.parameters~}}
 
 {{#with @root.mystfcf.settings.parameters.core.basic ~}}
@@ -104,6 +101,9 @@
   <name>{{@root.pdscAPI.getPackName}}</name>
   <url>{{@root.pdscAPI.getPackURL}}</url>
   <releases>
+    <release version="1.1.0" date="2026-07-24">
+      - Optimize alternative file list generation
+    </release>
     <release version="1.0.0" date="2026-04-20">
       - STFCF GPDSC Model Release
     </release>
@@ -114,9 +114,17 @@
     Mbed TLS Alt HAL condition, Mbed TLS Alt STCryptoLib condition, KWE condition,
     alt aes condition, alt ccm condition, alt chachapoly condition,
     alt cmac condition, alt entropy_hw condition,
-    alt drbg condition, alt ecp condition,
+    alt drbg condition, alt ecdh condition, alt ecdsa condition,
     alt gcm condition, alt rsa condition,
-    alt sha1 condition, alt sha256 condition, alt sha512 condition" )~}}
+    alt sha1 condition, alt sha256 condition, alt sha512 condition,
+    alt aes hal condition, alt ccm hal condition, alt ecp hal condition,
+    alt gcm hal condition, alt rsa hal condition, alt ecdh hal condition,
+    alt ecdsa hal condition, alt sha1 hal condition, alt sha256 hal condition,
+    alt sha512 hal condition,
+    alt aes stlib condition, alt ccm stlib condition, alt chachapoly stlib condition,
+    alt cmac stlib condition, alt drbg stlib condition, alt gcm stlib condition,
+    alt rsa stlib condition, alt ecdh stlib condition, alt ecdsa stlib condition,
+    alt sha256 stlib condition, alt sha512 stlib condition" )~}}
 
     {{{@root.conditions}}}
     <condition id="STFCF config condition">
@@ -124,6 +132,7 @@
       <deny Cclass="Security" Cgroup="STFCF" Csub="Core"/>
       <require Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
       {{!-- always present for rng/entropy init --}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt Common"/>
       <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
       <require condition="Mbed TLS Alt HAL condition"/> {{!-- HAL IPs --}}
       {{#if @root.stfcf_cryptolib}}
@@ -153,134 +162,368 @@
       <require Cclass="Device" Cgroup="STM32CubeMX2 Config" Csub="CCB"/>
     </condition>
 
-    {{#with @root.mystfcf.settings.parameters.core.basic}}
+    {{#with @root.mystfcf.settings.parameters.core.basic~}}
+    {{assign 'mystfcf' @root.mystfcf}}
     <condition id="alt aes condition">
       <description>Enable aes_alt implementation</description>
-      {{#if (or (eq implementations.aes_impl 'alt_hal')
-                (eq implementations.aes_impl 'alt_stcryptolib')
-                (eq implementations.ccm_impl 'alt_hal')
-                (eq implementations.ccm_impl 'alt_stcryptolib')
-                (eq implementations.gcm_impl 'alt_hal')
-                (eq implementations.gcm_impl 'alt_stcryptolib')
-                (eq implementations.rsa_impl 'alt_hal')
-                (eq implementations.rsa_impl 'alt_stcryptolib')
-                (eq implementations.ecdh_impl 'alt_hal')
-                (eq implementations.ecdh_impl 'alt_stcryptolib')
-                (eq implementations.ecdsa_impl 'alt_hal')
-                (eq implementations.ecdsa_impl 'alt_stcryptolib')
-                (eq implementations.sha1_impl 'alt_hal')
-                (eq implementations.sha1_impl 'alt_stcryptolib')
-                (eq implementations.sha256_impl 'alt_hal')
-                (eq implementations.sha256_impl 'alt_stcryptolib')
-                (eq implementations.sha512_impl 'alt_hal')
-                (eq implementations.sha512_impl 'alt_stcryptolib')   )}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.aes_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.aes_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else if (eq implementations.aes_impl 'kwe')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="KWE"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/> {{!-- cdt == false => file not generated --}}
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt aes hal condition">
+      <description>Enable aes_alt_hal implementation</description>
+    {{#if (eq implementations.aes_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt aes_aes hal condition">
+      <description>Enable aes_alt_hal implementation based on AES IP</description>
+    {{#if (or (and (eq implementations.aes_impl 'kwe')
+                   (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'SAES'))
+              (and (eq implementations.aes_impl 'alt_hal')
+                   (or (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'AES')
+                       (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'SAES'))) )}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt cryp_aes hal condition">
+      <description>Enable aes_alt_hal implementation based on CRYP IP</description>
+    {{#if (and (eq implementations.aes_impl 'alt_hal')
+               (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'CRYP'))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt aes stlib condition">
+      <description>Enable aes_alt_stlib implementation</description>
+    {{#if (eq implementations.aes_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt ccm condition">
       <description>Enable ccm_alt implementation</description>
-      {{#if (eq implementations.ccm_impl 'alt_hal')}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      {{else}}
+    {{#if (eq implementations.ccm_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.ccm_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else if (eq implementations.ccm_impl 'kwe')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="KWE"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt ccm hal condition">
+      <description>Enable ccm_alt_hal implementation</description>
+    {{#if (eq implementations.ccm_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt aes_ccm hal condition">
+      <description>Enable ccm_alt_hal implementation based on AES IP</description>
+    {{#if (and (eq implementations.ccm_impl 'alt_hal')
+               (or (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_ccm.selection 'AES')
+                   (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_ccm.selection 'SAES')))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt cryp_ccm hal condition">
+      <description>Enable ccm_alt_hal implementation based on CRYP IP</description>
+    {{#if (and (eq implementations.ccm_impl 'alt_hal')
+               (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_ccm.selection 'CRYP'))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ccm stlib condition">
+      <description>Enable ccm_alt_stlib implementation</description>
+    {{#if (eq implementations.ccm_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt chachapoly condition">
       <description>Enable chachapoly_alt implementation</description>
       <!-- Works only with ALT STCryptoLib -->
-      {{#if (eq implementations.chachapoly_impl 'alt_stcryptolib')}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.chachapoly_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt chachapoly stlib condition">
+      <description>Enable chachapoly_alt_stlib implementation</description>
+    {{#if (eq implementations.chachapoly_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt gcm condition">
+      <description>Enable gcm_alt implementation</description>
+    {{#if (eq implementations.gcm_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.gcm_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else if (eq implementations.gcm_impl 'kwe')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="KWE"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt gcm hal condition">
+      <description>Enable gcm_alt_hal implementation</description>
+    {{#if (eq implementations.gcm_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt aes_gcm hal condition">
+      <description>Enable gcm_alt_hal implementation based on AES IP</description>
+    {{#if (and (eq implementations.gcm_impl 'alt_hal')
+               (or (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_gcm.selection 'AES')
+                   (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_gcm.selection 'SAES')))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt cryp_gcm hal condition">
+      <description>Enable gcm_alt_hal implementation based on CRYP IP</description>
+    {{#if (and (eq implementations.gcm_impl 'alt_hal')
+               (eq @root.mystfcf.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_gcm.selection 'CRYP'))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt gcm stlib condition">
+      <description>Enable gcm_alt_stlib implementation</description>
+    {{#if (eq implementations.gcm_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt cmac condition">
       <description>Enable cmac_alt implementation</description>
-      {{#if (eq implementations.cmac_impl 'alt_stcryptolib')}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.cmac_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt cmac stlib condition">
+      <description>Enable cmac_alt_stlib implementation</description>
+    {{#if (eq implementations.cmac_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt drbg condition">
       <description>Enable drbg_alt implementation</description>
-      {{#if (eq implementations.drbg_impl 'alt_stcryptolib')}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.drbg_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt drbg stlib condition">
+      <description>Enable drbg_alt_stlib implementation</description>
+    {{#if (eq implementations.drbg_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt entropy_hw condition">
       <description>Enable entropy_hw_alt implementation</description>
       <!-- Works only with ALT HAL -->
-      {{#if (eq implementations.entropy_hw_impl 'alt_stcryptolib')}}
+    {{#if (eq implementations.drbg_impl 'alt_stcryptolib')}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{else}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      {{/if}}
-    </condition>
-    <condition id="alt ecp condition">
-      <description>Enable ecp_alt implementation</description>
-      {{#if (or (eq implementations.ecdh_impl 'alt_hal')
-                (eq implementations.ecdh_impl 'alt_stcryptolib')
-                (eq implementations.ecdsa_impl 'alt_hal')  )}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
-      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
-    </condition>
-    <condition id="alt gcm condition">
-      <description>Enable aes_alt implementation</description>
-       {{#if (or (eq implementations.gcm_impl 'alt_stcryptolib')
-                 (eq implementations.gcm_impl 'alt_hal') )}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
-      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{else}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{/if}}
     </condition>
     <condition id="alt rsa condition">
       <description>Enable rsa_alt implementation</description>
-      {{#if (or (eq implementations.rsa_impl 'alt_hal')
-                (eq implementations.rsa_impl 'alt_stcryptolib') )}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.rsa_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.rsa_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else if (eq implementations.rsa_impl 'kwe')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="KWE"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt rsa hal condition">
+      <description>Enable rsa_alt_hal implementation</description>
+    {{#if (eq implementations.rsa_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt rsa stlib condition">
+      <description>Enable rsa_alt_stlib implementation</description>
+    {{#if (eq implementations.rsa_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ecp hal condition">
+      <description>Enable ecp_alt implementation</description>
+      <accept condition="alt ecdh hal condition"/>
+      <accept condition="alt ecdsa hal condition"/>
+    </condition>
+    <condition id="alt ecdh condition">
+      <description>Enable ecdh_alt implementation</description>
+    {{#if (eq implementations.ecdh_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.ecdh_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else if (eq implementations.ecdh_impl 'kwe')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="KWE"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ecdh hal condition">
+      <description>Enable ecdh_alt_hal implementation</description>
+    {{#if (or (eq implementations.ecdh_impl 'alt_hal')
+              (eq implementations.ecdh_impl 'kwe'))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ecdh stlib condition">
+      <description>Enable ecdh_alt_stlib implementation</description>
+    {{#if (eq implementations.ecdh_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ecdsa condition">
+      <description>Enable ecdsa_alt implementation</description>
+    {{#if (eq implementations.ecdsa_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.ecdsa_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else if (eq implementations.ecdsa_impl 'kwe')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="KWE"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ecdsa hal condition">
+      <description>Enable ecdsa_alt_hal implementation</description>
+    {{#if (or (eq implementations.ecdsa_impl 'alt_hal')
+              (eq implementations.ecdsa_impl 'kwe'))}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt ecdsa stlib condition">
+      <description>Enable ecdsa_alt_stlib implementation</description>
+    {{#if (eq implementations.ecdsa_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt sha1 condition">
       <description>Enable sha1_alt implementation</description>
       <!-- Works only with ALT HAL -->
-      {{#if (eq implementations.sha1_impl 'alt_hal') }}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      {{else}}
+    {{#if (eq implementations.sha1_impl 'alt_hal') }}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt sha1 hal condition">
+      <description>Enable sha1_alt_hal implementation</description>
+    {{#if (eq implementations.sha1_impl 'alt_hal') }}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt sha256 condition">
       <description>Enable sha256_alt implementation</description>
-      {{#if (or (eq implementations.sha256_impl 'alt_hal')
-                (eq implementations.sha256_impl 'alt_stcryptolib') )}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.sha256_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.sha256_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt sha256 hal condition">
+      <description>Enable sha256_alt_hal implementation</description>
+    {{#if (eq implementations.sha256_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt sha256 stlib condition">
+      <description>Enable sha256_alt_stlib implementation</description>
+    {{#if (eq implementations.sha256_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     <condition id="alt sha512 condition">
       <description>Enable sha512_alt implementation</description>
-      {{#if (or (eq implementations.sha512_impl 'alt_hal')
-                (eq implementations.sha512_impl 'alt_stcryptolib') )}}
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
-      <accept Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
-      {{else}}
+    {{#if (eq implementations.sha512_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else if (eq implementations.sha512_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
       <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
-      {{/if}}
+    {{/if}}
+    </condition>
+    <condition id="alt sha512 hal condition">
+      <description>Enable sha512_alt_hal implementation</description>
+    {{#if (eq implementations.sha512_impl 'alt_hal')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
+    </condition>
+    <condition id="alt sha512 stlib condition">
+      <description>Enable sha512_alt_stlib implementation</description>
+    {{#if (eq implementations.sha512_impl 'alt_stcryptolib')}}
+      <require Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib"/>
+    {{else}}
+      <deny Cclass="Security" Cgroup="STFCF" Csub="PSA API"/>
+    {{/if}}
     </condition>
     {{/with}}
   </conditions>
@@ -289,11 +532,6 @@
     {{#each components}}
     <component {{{generatorId}}} {{{Cclass}}} {{{Cgroup}}} {{{Csub}}} {{{Cversion}}} {{{condition}}}>
       <description>{{description}}</description>
-      {{!-- workaround! --}}
-      <Pre_Include_Global_h>
-/* Enabling global STFCF configuration file */
-#define MBEDTLS_CONFIG_FILE "mx_stfcf_config.h"
-      </Pre_Include_Global_h>
       <files>
         {{#each files_array}}
         <file category="{{category}}" name="{{gen_file}}" />
@@ -301,5 +539,103 @@
       </files>
     </component>
     {{/each}}
+    {{assign "getFilesPrefix" (@root.pdscAPI.getFilesPrefix)}}
+    <!-- Mbed TLS ALT Common -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt Common" Cversion="1.0.0">
+      <description>Router for the Mbed TLS and STMicroelectronics' alternatives according to the configuration choices</description>
+      <files>
+        <file category="include" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/aes_alt.h" condition="alt aes condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/ccm_alt.h" condition="alt ccm condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/chachapoly_alt.h" condition="alt chachapoly condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/cmac_alt.h" condition="alt cmac condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/drbg_alt.h" condition="alt drbg condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/ecp_alt.h" condition="alt ecp hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/entropy_hardware_alt.h"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/gcm_alt.h" condition="alt gcm condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/rsa_alt.h" condition="alt rsa condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/sha1_alt.h" condition="alt sha1 condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/sha256_alt.h" condition="alt sha256 condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/common/sha512_alt.h" condition="alt sha512 condition"/>
+      </files>
+    </component>
+
+    {{#if @root.stfcf_cryptolib}}
+    <!-- Mbed TLS ALT STCryptoLib -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt STCryptoLib" Cversion="1.0.0" condition="Mbed TLS Alt STCryptoLib condition">
+      <description>Mbed TLS alternative implementation thanks STM32 Cryptographic library (STCryptoLib)</description>
+      <files>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_aes_alt.h" condition="alt aes stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_chachapoly_alt.h" condition="alt chachapoly stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_ccm_alt.h" condition="alt ccm stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_cmac_alt.h" condition="alt cmac stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_drbg_alt.h" condition="alt drbg stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_gcm_alt.h" condition="alt gcm stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_rsa_alt.h" condition="alt rsa stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_sha256_alt.h" condition="alt sha256 stlib condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/stcryptolib/stcryptolib_sha512_alt.h" condition="alt sha512 stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/aes_alt.c"  condition="alt aes stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/ccm_alt.c" condition="alt ccm stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/chachapoly_alt.c" condition="alt chachapoly stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/cmac_alt.c" condition="alt cmac stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/drbg_alt.c" condition="alt drbg stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/ecdh_alt.c" condition="alt ecdh stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/ecdsa_alt.c" condition="alt ecdsa stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/gcm_alt.c" condition="alt gcm stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/rsa_alt.c" condition="alt rsa stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/sha256_alt.c" condition="alt sha256 stlib condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/stcryptolib/sha512_alt.c" condition="alt sha512 stlib condition"/>
+      </files>
+    </component>
+    {{/if~}}
+
+    {{#if @root.stfcf_hal}}
+    <!-- Mbed TLS ALT HAL -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="MbedTLS Alt HAL" Cversion="1.0.1" condition="Mbed TLS Alt HAL condition">
+      <description>Mbed TLS alternative implementation thanks hardware acceleration (HAL API)</description>
+      <files>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_aes_alt.h" condition="alt aes hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_ccm_alt.h" condition="alt ccm hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_ecp_alt.h" condition="alt ecp hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_gcm_alt.h" condition="alt gcm hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_rsa_alt.h" condition="alt rsa hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_sha1_alt.h" condition="alt sha1 hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_sha256_alt.h" condition="alt sha256 hal condition"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/mbedtls_alt/include/hal/hal_sha512_alt.h" condition="alt sha512 hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/aes_aes_alt.c" condition="alt aes_aes hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/aes_ccm_alt.c" condition="alt aes_ccm hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/aes_gcm_alt.c" condition="alt aes_gcm hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/cryp_aes_alt.c" condition="alt cryp_aes hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/cryp_ccm_alt.c" condition="alt cryp_ccm hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/cryp_gcm_alt.c" condition="alt cryp_gcm hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/ecdh_alt.c" condition="alt ecdh hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/ecdsa_alt.c" condition="alt ecdsa hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/ecp_alt.c" condition="alt ecp hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/ecp_curves_alt.c" condition="alt ecp hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/entropy_hardware_alt.c"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/rsa_alt.c" condition="alt rsa hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/sha1_alt.c" condition="alt sha1 hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/sha256_alt.c" condition="alt sha256 hal condition"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/mbedtls_alt/source/hal/sha512_alt.c" condition="alt sha512 hal condition"/>
+      </files>
+    </component>
+    {{/if~}}
+
+    {{#if @root.stfcf_kwe}}
+    <!-- KWE -->
+    <component Cclass="Security" Cgroup="STFCF" Csub="KWE" Cversion="1.0.0" condition="KWE condition">
+      <description>Key Wrapping Engine</description>
+      <files>
+        <file category="header" name="{{@root.getFilesPrefix}}/kwe/core/kwe_core.h"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/kwe/core/kwe_core.c"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/kwe/core/kwe_types.h"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/kwe/interface/kwe_psa_driver_interface.h"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/kwe/interface/kwe_psa_driver_interface.c"/>
+        <file category="header" name="{{@root.getFilesPrefix}}/kwe/interface/kwe_psa_driver_key_management.h"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/kwe/interface/kwe_psa_driver_key_management.c"/>
+        <file category="source" name="{{@root.getFilesPrefix}}/kwe/README.md"/>
+      </files>
+    </component>
+    {{/if}}
   </components>
 </package>

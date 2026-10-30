@@ -180,7 +180,6 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
   uint8_t *p_working_buffer = NULL;     /* ECDSA working buffer for STCryptoLib */
   uint16_t buff_size = 0;               /* space needed by STCryptoLib */
   cmox_ecc_handle_t ecc_ctx;            /* Ecc ctx for STCryptoLib */
-  cmox_init_arg_t init_arg;             /* Init structure for STCryptoLib */
   uint8_t *p_private_key = NULL;
   uint8_t priv_key_size;                /* Private key size */
   uint8_t *p_computed_signature = NULL;
@@ -269,14 +268,6 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     } while ((p_k_binary[pos] == 0xFFU) && (pos > 1U));
   }
 
-  /* Init the STCryptoLib */
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
-  {
-    return -1;
-  }
-
   cmox_ecc_construct(&ecc_ctx, CMOX_MATH_FUNCS_FAST, p_working_buffer,
                      buff_size);
 
@@ -348,7 +339,6 @@ int mbedtls_ecdsa_verify(mbedtls_ecp_group *grp, const unsigned char *buf,
   size_t signature_size = 0U;
   size_t buffer_size = 0U;
   cmox_ecc_handle_t ecc_ctx;                   /* Ecc ctx for STCryptoLib */
-  cmox_init_arg_t init_arg;                    /* Init structure for STCryptoLib */
   uint32_t fault_check = CMOX_ECC_AUTH_FAIL;   /* Fault check variable */
   uint8_t *p_public_key = NULL;
   uint8_t *p_known_signature = NULL;
@@ -403,14 +393,6 @@ int mbedtls_ecdsa_verify(mbedtls_ecp_group *grp, const unsigned char *buf,
   if (p_working_buffer == NULL)
   {
     return MBEDTLS_ERR_MPI_ALLOC_FAILED;
-  }
-
-  /* Init the STCryptoLib */
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
-  {
-    return -1;
   }
 
   cmox_ecc_construct(&ecc_ctx, CMOX_MATH_FUNCS_FAST, p_working_buffer,

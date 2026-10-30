@@ -368,7 +368,7 @@ static int CheckPKASignature(hal_pka_handle_t *hpka, hal_pka_ecdsa_verif_config_
   uint32_t i;
   uint32_t j;
   PKA_TypeDef *p_instance_PKA = (PKA_TypeDef *)(hpka->instance);
-  uint8_t *p_sign_PKA = (uint8_t *) & (p_instance_PKA->RAM[PKA_ECDSA_VERIF_OUT_SIGNATURE_R * 4U]);
+  uint8_t *p_sign_PKA = (uint8_t *) & (p_instance_PKA->RAM[PKA_ECDSA_VERIF_OUT_SIGNATURE_R]);
   uint8_t *pSign = (uint8_t *)in->p_r_sign;
   uint32_t Size =  in->prime_order_size_byte;
 

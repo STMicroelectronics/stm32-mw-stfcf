@@ -14,6 +14,88 @@ More  documentation is available at [STFCF SW Pack documentation](https://stm32c
 
 # Update History
 
+<label for="collapse-section4" aria-hidden="true">__3.0.0 / 25-Sep-2026__</label>
+<div>
+
+## Main Changes
+
+- Add SW resources management.
+
+## Contents
+
+- ST implementations (HAL and STCryptoLib) for MbedTLS alternative interfaces covering large cryptographic algorithms.
+- Key Wrap Engine drivers enabling secure cryptographic operations on STM32 hardware accelerators using symmetric and asymmetric wrapped keys.
+- Ready to use configuration files.
+
+## Known Limitations
+
+- None.
+
+## Development Toolchains and Compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+
+## Supported devices and boards
+
+- STM32C5 series.
+- STM32V8 series.
+
+## Backward Compatibility
+
+- Fully compatible with previous version.
+
+## Dependencies
+
+- MbedTLS SW Pack V2.0.0
+- STCryptoLib SW Pack V2.0.0
+- STM32C5xx HAL Drivers V2.0.0
+- STM32CubeMX2 V1.0.1
+
+</div>
+
+<label for="collapse-section3" aria-hidden="true">__2.1.1 / 03-July-2026__</label>
+<div>
+
+## Main Changes
+
+- Enhance helpers description.
+
+## Contents
+
+- ST implementations (HAL and STCryptoLib) for MbedTLS alternative interfaces covering large cryptographic algorithms.
+- Key Wrap Engine drivers enabling secure cryptographic operations on STM32 hardware accelerators using symmetric and asymmetric wrapped keys.
+- Ready to use configuration files.
+
+## Known Limitations
+
+- None.
+
+## Development Toolchains and Compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+
+## Supported devices and boards
+
+- STM32C5 series.
+- STM32V8 series.
+
+## Backward Compatibility
+
+- Fully compatible with previous version.
+
+## Dependencies
+
+- MbedTLS SW Pack V2.0.0
+- STCryptoLib SW Pack V2.0.0
+- STM32C5xx HAL Drivers V2.0.0
+- STM32CubeMX2 V1.0.1
+
+</div>
+
 <label for="collapse-section2" aria-hidden="true">__2.1.0 / 05-June-2026__</label>
 <div>
 

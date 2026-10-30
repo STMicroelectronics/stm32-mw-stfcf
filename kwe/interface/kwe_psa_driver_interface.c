@@ -169,14 +169,14 @@ static void ecc_hal_prepare_digest(const uint8_t *P_pDigestIn, uint8_t P_DigestI
           P_pDigestOut[i] = P_pDigestOut[i] - P_pPrimeOrder[i];
           propagation = 1;
         }
-        /* Case of last byte outside the loop for misra */
-        if (propagation == 1u)
-        {
-          P_pDigestOut[0] = P_pDigestOut[0] - 1u;
-        }
-        /* P_pDigestOut is obligatory bigger than P_pPrimeOrder */
-        P_pDigestOut[i] = P_pDigestOut[i] - P_pPrimeOrder[i];
       }
+      /* Case of last byte outside the loop for misra */
+      if (propagation == 1u)
+      {
+        P_pDigestOut[0] = P_pDigestOut[0] - 1u;
+      }
+      /* P_pDigestOut is obligatory bigger than P_pPrimeOrder */
+      P_pDigestOut[i] = P_pDigestOut[i] - P_pPrimeOrder[i];
     }  /* P_pDigestOut >=  P_pPrimeOrder */
   } /* end digest preparation */
 }
@@ -960,7 +960,7 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
     ecc_hal_prepare_digest(p_hash, (uint8_t)hash_length,
                            p_digest, (uint8_t)ecp_tmp.order_size, ecp_tmp.p_n);
 
-    status = (int32_t)KWE_EcdsaSignHash(&ecp_tmp, p_key_buffer, p_digest, (uint8_t)hash_length, p_signature,
+    status = (int32_t)KWE_EcdsaSignHash(&ecp_tmp, p_key_buffer, p_digest, (uint8_t)ecp_tmp.order_size, p_signature,
                                         signature_size, p_signature_length);
 
     mbedtls_zeroize_and_free(p_digest, (ecp_tmp.order_size));
@@ -1005,6 +1005,9 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
       {
         return MBEDTLS_ERR_MPI_ALLOC_FAILED;
       }
+#if defined(MBEDTLS_PKCS1_V21)
+      mbedtls_md_init(&md_ctx);
+#endif /* MBEDTLS_PKCS1_V21 */
 #if defined(MBEDTLS_PKCS1_V15)
       if (PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg))
       {
@@ -1085,7 +1088,6 @@ psa_status_t mbedtls_kwe_opaque_signature_sign_hash(
 
           p += slen;
 
-          mbedtls_md_init(&md_ctx);
           status = mbedtls_to_psa_error(mbedtls_md_setup(&md_ctx, md_info, 0));
           if (status != 0)
           {

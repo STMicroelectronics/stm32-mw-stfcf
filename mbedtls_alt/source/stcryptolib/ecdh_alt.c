@@ -197,7 +197,6 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
   uint8_t *p_private_key = NULL;        /* Private key */
   uint8_t *p_public_key = NULL;         /* Public key X + Y */
   uint8_t *p_computed_secret = NULL;    /* Secret part X */
-  cmox_init_arg_t init_arg;             /* Init structure for STCryptoLib */
 
   /* Select curve id */
   curve_id = ecc_alt_curveId(grp->id);
@@ -229,14 +228,6 @@ static int ecdh_compute_shared_restartable(mbedtls_ecp_group *grp,
   if (p_working_buffer == NULL)
   {
     return MBEDTLS_ERR_MPI_ALLOC_FAILED;
-  }
-
-  /* Init the STCryptoLib */
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
-  {
-    return -1;
   }
 
   cmox_ecc_construct(&ecc_ctx, CMOX_MATH_FUNCS_FAST, p_working_buffer, buff_size);

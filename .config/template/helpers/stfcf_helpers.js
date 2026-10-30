@@ -26,7 +26,7 @@ function addConfigLC(str) {
 }
 
 /**
- * Generates a function name based on inputs
+ * Safe wrapper around common function-name generation logic with error handling and logging.
  * @param {string} pppi
  * @param {string} layer
  * @param {number} index
@@ -36,10 +36,10 @@ function addConfigLC(str) {
  */
 function helper_stfcf_get_generated_function_name(pppi, layer, index, pppi_fct, from_where) {
   try {
-    console.log(`[INFO] helper_stfcf_get_generated_function_name (${pppi}, ${layer}, ${index}, ${pppi_fct}), from ${from_where}`);
+    console.info(`helper_stfcf_get_generated_function_name (${pppi}, ${layer}, ${index}, ${pppi_fct}), from ${from_where}`);
     return common_stfcf_get_generated_function_name(pppi, layer, index, pppi_fct);
   } catch (e) {
-    console.error(`[ERROR] helper_stfcf_get_generated_function_name: ${e}`);
+    console.error(`helper_stfcf_get_generated_function_name: ${e}`);
     return {};
   }
 }
@@ -92,7 +92,7 @@ function getBasicConfig(config) {
 }
 
 /**
- * Evaluate cipher condition at runtime based on config
+ * Evaluates cipher-related conditions based on selected algorithms and implementations.
  * @param {object} config - The configuration object, expected to have cryptography.cipher
  * @param {string[]} algorithms - List of algorithms (can include exclusions with '!' prefix)
  * @param {string[]} implementations - List of implementations (can include exclusions with '!' prefix)
@@ -128,23 +128,23 @@ function helper_stfcf_cipher_cdt(config, algorithms = [], implementations = []) 
 
     if (!impl) {
       impl = 'alt_hal';
-      console.log(`stfcf_cipher_cdt: algo=${algo}, implementation key missing. Defaulting to impl=${impl}`);
+      console.debug(`helper_stfcf_cipher_cdt: algo=${algo}, implementation key missing. Defaulting to impl=${impl}`);
     }
 
-    console.log(`stfcf_cipher_cdt: algo=${algo}, impl=${impl}`);
+    console.debug(`helper_stfcf_cipher_cdt: algo=${algo}, impl=${impl}`);
 
     if (impl && effectiveImpls.includes(impl)) {
-      console.log("stfcf_cipher_cdt: Matching algorithm and implementation found. Returning true.");
+      console.info("helper_stfcf_cipher_cdt: Matching algorithm and implementation found. Returning true.");
       return true;
     }
   }
 
-  console.log("stfcf_cipher_cdt: No matching algorithm/implementation pair found. Returning false.");
+  console.info("helper_stfcf_cipher_cdt: No matching algorithm/implementation pair found. Returning false.");
   return false;
 }
 
 /**
- * Evaluate asymmetric encryption RSA condition at runtime based on config
+ * Evaluate asymmetric encryption RSA condition at runtime based on selected algorithms and implementations.
  * @param {object} config - The configuration object, expected to have cryptography.asymmetric_encryption
  * @param {string[]} rsaModes - List of RSA modes (can include exclusions)
  * @param {string[]} implementations - List of implementations (can include exclusions)
@@ -167,25 +167,25 @@ function helper_stfcf_asym_encr_rsa_cdt(config, rsaModes = [], implementations =
 
   if (!impl && defaultImpl) {
     impl = defaultImpl;
-    console.log(`asym_encr_rsa_cdt: implementation key missing. Defaulting to impl=${impl}`);
+    console.debug(`helper_stfcf_asym_encr_rsa_cdt: implementation key missing. Defaulting to impl=${impl}`);
   }
 
   if (!impl || !effectiveImpls.includes(impl)) {
-    console.log("asym_encr_rsa_cdt: Implementation not in effective implementations. Returning false.");
+    console.info("helper_stfcf_asym_encr_rsa_cdt: Implementation not in effective implementations. Returning false.");
     return false;
   }
 
   if (!rsaMode || !effectiveRsaModes.includes(rsaMode)) {
-    console.log("asym_encr_rsa_cdt: RSA mode not in effective rsaModes. Returning false.");
+    console.info("helper_stfcf_asym_encr_rsa_cdt: RSA mode not in effective rsaModes. Returning false.");
     return false;
   }
 
-  console.log("asym_encr_rsa_cdt: Condition met. Returning true.");
+  console.info("helper_stfcf_asym_encr_rsa_cdt: Condition met. Returning true.");
   return true;
 }
 
 /**
- * Evaluate key agreement condition at runtime based on config
+ * Evaluate key agreement condition at runtime based on selected algorithms and implementations.
  * @param {object} config - The configuration object, expected to have cryptography.key_agreement
  * @param {string[]} algorithms - List of algorithms (can include exclusions)
  * @param {string[]} implementations - List of implementations (can include exclusions)
@@ -207,27 +207,27 @@ function helper_stfcf_key_agre_cdt(config, algorithms = [], implementations = []
 
   if (!impl && defaultImpl) {
     impl = defaultImpl;
-    console.log(`key_agre_cdt: implementation key missing. Defaulting to impl=${impl}`);
+    console.debug(`helper_stfcf_key_agre_cdt: implementation key missing. Defaulting to impl=${impl}`);
   }
 
-  console.log("key_agre_cdt: Current implementation in config:", impl);
+  console.debug("helper_stfcf_key_agre_cdt: Current implementation in config:", impl);
 
   if (!impl || !effectiveImpls.includes(impl)) {
-    console.log("key_agre_cdt: Implementation not in effective implementations. Returning false.");
+    console.info("helper_stfcf_key_agre_cdt: Implementation not in effective implementations. Returning false.");
     return false;
   }
 
   const algoMatch = effectiveAlgos.some(algo => {
-    console.log("key_agre_cdt: Checking algorithm in config:", algo);
+    console.debug("helper_stfcf_key_agre_cdt: Checking algorithm in config:", algo);
     return Boolean(keyAgreCfg?.[algo]);
   });
 
-  console.log("key_agre_cdt: Algorithm match result:", algoMatch);
+  console.info("helper_stfcf_key_agre_cdt: Algorithm match result:", algoMatch);
   return algoMatch;
 }
 
 /**
- * Evaluate asymmetric signature condition at runtime based on config
+ * Evaluate asymmetric signature condition at runtime based on selected algorithms and implementations.
  * @param {object} config - The configuration object, expected to have cryptography.asymmetric_signature
  * @param {string[]} algorithms - List of algorithms (can include exclusions)
  * @param {string[]} implementations - List of implementations (can include exclusions)
@@ -266,7 +266,7 @@ function helper_stfcf_asym_sign_cdt(config, algorithms = [], implementations = [
   const implCfg = basicCfg?.implementations || {};
 
   for (const algo of effectiveAlgos) {
-    console.log(`asym_sign_cdt: Checking algorithm '${algo}'`);
+    console.debug(`helper_stfcf_asym_sign_cdt: Checking algorithm '${algo}'`);
     let impl;
 
     if (algo === 'ecdsa_sign_verify') {
@@ -277,24 +277,24 @@ function helper_stfcf_asym_sign_cdt(config, algorithms = [], implementations = [
 
     if (!impl && defaultImpl) {
       impl = defaultImpl;
-      console.log(`asym_sign_cdt: implementation key missing. Defaulting to impl=${impl}`);
+      console.debug(`helper_stfcf_asym_sign_cdt: implementation key missing. Defaulting to impl=${impl}`);
     }
 
     if (!impl || !effectiveImpls.includes(impl)) {
-      console.log(`asym_sign_cdt: Implementation '${impl}' for '${algo}' is not allowed, skipping.`);
+      console.debug(`helper_stfcf_asym_sign_cdt: Implementation '${impl}' for '${algo}' is not allowed, skipping.`);
       continue;
     }
 
     if (algo === 'ecdsa_sign_verify') {
       if (asymSignCfg?.ecdsa_sign_verify) {
-        console.log(`asym_sign_cdt: Algorithm '${algo}' matched with truthy config value. Returning true.`);
+        console.info(`helper_stfcf_asym_sign_cdt: Algorithm '${algo}' matched with truthy config value. Returning true.`);
         return true;
       }
     } else {
       /* Split base and variant by dot */
       const parts = algo.split('.');
       if (parts.length !== 2) {
-        console.log(`asym_sign_cdt: Algorithm '${algo}' does not have expected dot notation, skipping.`);
+        console.debug(`helper_stfcf_asym_sign_cdt: Algorithm '${algo}' does not have expected dot notation, skipping.`);
         continue;
       }
 
@@ -302,22 +302,22 @@ function helper_stfcf_asym_sign_cdt(config, algorithms = [], implementations = [
       const variant = parts[1]; /* 'crt' or 'no_crt' */
 
       const configValue = asymSignCfg?.[base];
-      console.log(`asym_sign_cdt: Config value for '${base}':`, configValue);
+      console.debug(`helper_stfcf_asym_sign_cdt: Config value for '${base}':`, configValue);
 
       if (configValue && configValue.toLowerCase() === variant.toLowerCase()) {
-        console.log(`asym_sign_cdt: Algorithm '${algo}' matched with variant '${configValue}'. Returning true.`);
+        console.info(`helper_stfcf_asym_sign_cdt: Algorithm '${algo}' matched with variant '${configValue}'. Returning true.`);
         return true;
       }
     }
   }
 
-  console.log("asym_sign_cdt: No matching algorithms found. Returning false.");
+  console.info("helper_stfcf_asym_sign_cdt: No matching algorithms found. Returning false.");
   return false;
 }
 
 
 /**
- * Evaluate message authentication code condition at runtime based on config
+ * Evaluate message authentication code condition at runtime based on selected algorithms and implementations.
  * @param {object} config - The configuration object, expected to have cryptography.message_authentication_code
  * @param {string[]} algorithms - List of algorithms (can include exclusions)
  * @param {string[]} implementations - List of implementations (can include exclusions)
@@ -337,7 +337,7 @@ function helper_stfcf_mess_auth_cdt(config, algorithms = [], implementations = [
   const implCfg = basicCfg?.implementations || {};
 
   for (const algo of effectiveAlgos) {
-    console.log("mess_auth_cdt: Checking algorithm in config:", algo);
+    console.debug("helper_stfcf_mess_auth_cdt: Checking algorithm in config:", algo);
     if (!messAuthCfg?.[algo]) {
       continue;
     }
@@ -351,22 +351,22 @@ function helper_stfcf_mess_auth_cdt(config, algorithms = [], implementations = [
 
     if (!impl && defaultImpl) {
       impl = defaultImpl;
-      console.log(`mess_auth_cdt: algo=${algo}, implementation key missing. Defaulting to impl=${impl}`);
+      console.debug(`helper_stfcf_mess_auth_cdt: algo=${algo}, implementation key missing. Defaulting to impl=${impl}`);
     }
 
-    console.log(`mess_auth_cdt: algo=${algo}, impl=${impl}`);
+    console.debug(`helper_stfcf_mess_auth_cdt: algo=${algo}, impl=${impl}`);
     if (impl && effectiveImpls.includes(impl)) {
-      console.log("mess_auth_cdt: Matching algorithm and implementation found. Returning true.");
+      console.info("helper_stfcf_mess_auth_cdt: Matching algorithm and implementation found. Returning true.");
       return true;
     }
   }
 
-  console.log("mess_auth_cdt: No matching algorithm/implementation pair found. Returning false.");
+  console.info("helper_stfcf_mess_auth_cdt: No matching algorithm/implementation pair found. Returning false.");
   return false;
 }
 
 /**
- * Evaluate hash condition at runtime based on config
+ * Evaluate hash condition at runtime based on selected algorithms and implementations.
  * @param {object} config - The configuration object, expected to have cryptography.hash
  * @param {string[]} algorithms - List of algorithms (can include exclusions)
  * @param {string[]} implementations - List of implementations (can include exclusions)
@@ -389,20 +389,20 @@ function helper_stfcf_hash_cdt(config, algorithms = [], implementations = []) {
     basicCfg?.implementations ||
     {};
 
-  // Explicit "no selection" handling
+  /* Explicit "no selection" handling */
   const noAlgoSelected = effectiveAlgos.length === 0;
   const noImplSelected = effectiveImpls.length === 0;
 
   if (noAlgoSelected || noImplSelected) {
-    console.log(`hash_cdt: no selection (algorithms=${effectiveAlgos.length}, implementations=${effectiveImpls.length}). Returning false.`);
+    console.info(`helper_stfcf_hash_cdt: no selection (algorithms=${effectiveAlgos.length}, implementations=${effectiveImpls.length}). Returning false.`);
     return false;
   }
 
   for (const algo of effectiveAlgos) {
-    console.log(`hash_cdt: checking algorithm='${algo}'`);
+    console.debug(`helper_stfcf_hash_cdt: checking algorithm='${algo}'`);
 
     if (!hashCfg?.[algo]) {
-      console.log(`hash_cdt: algorithm '${algo}' disabled in config, skipping.`);
+      console.debug(`helper_stfcf_hash_cdt: algorithm '${algo}' disabled in config, skipping.`);
       continue;
     }
 
@@ -420,24 +420,25 @@ function helper_stfcf_hash_cdt(config, algorithms = [], implementations = []) {
 
     if (!impl) {
       impl = 'alt_hal';
-      console.log(`hash_cdt: algorithm='${algo}', implementation key missing. Defaulting to implementation='${impl}'.`);
+      console.debug(`helper_stfcf_hash_cdt: algorithm='${algo}', implementation key missing. Defaulting to implementation='${impl}'.`);
     }
 
-    console.log(`hash_cdt: algorithm='${algo}', implementation='${impl}'`);
+    console.debug(`helper_stfcf_hash_cdt: algorithm='${algo}', implementation='${impl}'`);
 
     if (impl && effectiveImpls.includes(impl)) {
-      console.log(`hash_cdt: match found for algorithm='${algo}' with implementation='${impl}'. Returning true.`);
+      console.info(`helper_stfcf_hash_cdt: match found for algorithm='${algo}' with implementation='${impl}'. Returning true.`);
       return true;
     }
   }
 
-  console.log('hash_cdt: no matching algorithm/implementation pair found. Returning false.');
+  console.info('helper_stfcf_hash_cdt: no matching algorithm/implementation pair found. Returning false.');
   return false;
 }
 
 /**
- * Evaluate random condition at runtime based on config
- * @param {object} config - The configuration object, expected to []} algorithms - List of algorithms (can include exclusions)
+ * Evaluate random condition at runtime based on selected algorithms and implementations.
+ * @param {object} config - The configuration object, expected to have random configuration
+ * @param {string[]} algorithms - List of algorithms (can include exclusions)
  * @param {string[]} implementations - List of implementations (can include exclusions)
  * @returns {boolean}
  */
@@ -454,25 +455,30 @@ function helper_stfcf_random_cdt(config, algorithms = [], implementations = []) 
   let impl = implCfg?.drbg_impl;
   if (!impl) {
     impl = 'alt_stcryptolib';
-    console.log(`random_cdt: DRBG implementation is missing. Defaulting to impl='${impl}'.`);
+    console.debug(`helper_stfcf_random_cdt: DRBG implementation is missing. Defaulting to impl='${impl}'.`);
   }
   if (!effectiveImpls.includes(impl)) {
-    console.log(`random_cdt: DRBG implementation '${impl}' is not in effective implementations [${effectiveImpls.join(', ')}]. Returning false.`);
+    console.info(`helper_stfcf_random_cdt: DRBG implementation '${impl}' is not in effective implementations [${effectiveImpls.join(', ')}]. Returning false.`);
     return false;
   }
 
   const drbg = randomCfg?.drbg;
   if (!drbg) {
-    console.log("random_cdt: DRBG algorithm is missing. Returning false.");
+    console.info("helper_stfcf_random_cdt: DRBG algorithm is missing. Returning false.");
     return false;
   }
 
   const match = effectiveAlgos.includes(drbg);
-  console.log(`random_cdt: drbg='${drbg}', impl='${impl}', effectiveAlgos=[${effectiveAlgos.join(', ')}], match=${match}`);
+  console.info(`helper_stfcf_random_cdt: drbg='${drbg}', impl='${impl}', effectiveAlgos=[${effectiveAlgos.join(', ')}], match=${match}`);
   return match;
 }
 
-
+/**
+ * Returns the corresponding #define or commented define string for a given MbedTLS flag.
+ * @param {object} config - The configuration object
+ * @param {string} flag - The MbedTLS configuration flag to evaluate
+ * @returns {string} The MbedTLS preprocessor directive (#define or commented out)
+ */
 function helper_stfcf_mbedtlsconfig_switch ( config, flag )  {
   /* Normalize both legacy basic and newer parameters paths to core.basic. */
   const basicCfg = getBasicConfig(config);
@@ -506,7 +512,7 @@ function helper_stfcf_mbedtlsconfig_switch ( config, flag )  {
       }
       break;
     case "MBEDTLS_AES_ALT":
-      // Check for DRBG mode in config if available
+      /* Check for DRBG mode in config if available */
       if (config?.core?.basic?.implementations?.aes_impl == 'alt_hal' ||
           config?.core?.basic?.implementations?.aes_impl == 'alt_stcryptolib' ||
           config?.core?.basic?.implementations?.aes_impl == 'kwe' ||
@@ -561,18 +567,18 @@ function helper_stfcf_mbedtlsconfig_switch ( config, flag )  {
         result = "/* #define MBEDTLS_BIGNUM_C */";
       }
       break;
-    case "MBEDTLS_CCM_ALT":
-      if (helper_stfcf_cipher_cdt(config, ['ccm'], ['alt_hal'])) {
-        result = "#define MBEDTLS_CCM_ALT";
-      } else {
-        result = "/* #define MBEDTLS_CCM_ALT */";
-      }
-      break;
     case "MBEDTLS_CCM_C":
       if (config.core?.basic?.cryptography?.cipher?.ccm) {
         result = "#define MBEDTLS_CCM_C";
       } else {
         result = "/* #define MBEDTLS_CCM_C */";
+      }
+      break;
+    case "MBEDTLS_CCM_ALT":
+      if (helper_stfcf_cipher_cdt(config, ['ccm'], ['alt_hal'])) {
+        result = "#define MBEDTLS_CCM_ALT";
+      } else {
+        result = "/* #define MBEDTLS_CCM_ALT */";
       }
       break;
     case "MBEDTLS_CHACHA20_C":
@@ -896,8 +902,7 @@ function helper_stfcf_mbedtlsconfig_switch ( config, flag )  {
       }
       break;
     case "MBEDTLS_SHA256_ALT":
-      if (config?.core?.advanced?.psa_init?.drbg_mode == 'drbg_hmac' ||
-          config?.core?.basic?.implementations?.sha256_impl == 'alt_stcryptolib' ||
+      if (config?.core?.basic?.implementations?.sha256_impl == 'alt_stcryptolib' ||
           config?.core?.basic?.implementations?.sha256_impl == 'alt_hal' ||
           helper_stfcf_mess_auth_cdt(config, ['hmac'], ['alt_stcryptolib', 'alt_hal'])) {
         result = "#define MBEDTLS_SHA256_ALT";
@@ -1298,20 +1303,28 @@ function helper_stfcf_mbedtlsconfig_switch ( config, flag )  {
   return result;
 }
 
+/**
+ * Checks whether KWE-related features are enabled in the configuration or not.
+ * @param {config} config
+ * @returns boolean
+ */
 function helper_stfcf_mbedtlsconfig_kwe_enabled ( config )  {
   let result = "";
     if (helper_stfcf_cipher_cdt(config, ['!ctr', '!chachapoly'], ['kwe']) ||
         helper_stfcf_key_agre_cdt(config, ['ecdh'], ['kwe']) ||
         helper_stfcf_asym_sign_cdt(config, ['rsa_sign_verify_1_5.no_crt','rsa_sign_verify_2_2.no_crt','ecdsa_sign_verify'], ['kwe']) ||
         helper_stfcf_asym_encr_rsa_cdt(config, ['no_crt'], ['kwe'])) {
+      console.debug(`helper_stfcf_mbedtlsconfig_kwe_enabled return true`);
       result = true;
     } else {
+      console.debug(`helper_stfcf_mbedtlsconfig_kwe_enabled return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether any of the AES ALT implementations is enabled in the configuration or not.
  * @param {mbedtls_aes_alt} config
  * @returns boolean
  */
@@ -1323,16 +1336,17 @@ function helper_stfcf_aes_alt ( config )  {
         $fcf_mw.helper_stfcf_asym_sign_cdt(config, [], ['alt_hal', 'kwe']) ||
         $fcf_mw.helper_stfcf_mess_auth_cdt(config, ['cmac'], ['alt_stcryptolib']) ||
         $fcf_mw.helper_stfcf_hash_cdt(config, [], ['alt_hal', 'kwe'])) {
-      /* console.log(`[INFO] helper_stfcf_aes_alt return true`); */
+      console.debug(`helper_stfcf_aes_alt return true`);
       result = true;
     } else {
-      /* console.log(`[INFO] helper_stfcf_aes_alt return false`); */
+      console.debug(`helper_stfcf_aes_alt return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether HAL-based AES alternative logic is enabled or not.
  * @param {mbedtls_hal_aes_alt} config
  * @returns boolean
  */
@@ -1346,16 +1360,17 @@ function helper_stfcf_aes_alt_hal ( config )  {
          helper_stfcf_key_agre_cdt(config, [], ['alt_hal','kwe']) ||
          helper_stfcf_mess_auth_cdt(config, ['hmac'], ['alt_hal']) ||
          helper_stfcf_hash_cdt(config, [], ['alt_hal']))) {
-      /* console.log(`[INFO] helper_stfcf_aes_alt_hal return true`); */
+      console.debug(`helper_stfcf_aes_alt_hal return true`);
       result = true;
     } else {
-      /* console.log(`[INFO] helper_stfcf_aes_alt_hal return false`); */
+      console.debug(`helper_stfcf_aes_alt_hal return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether STCRYPTOLIB-based AES alternative logic is enabled or not.
  * @param {mbedtls_stcryptolib_aes_alt} config
  * @returns boolean
  */
@@ -1363,44 +1378,51 @@ function helper_stfcf_aes_alt_stcryptolib ( config )  {
   let result = "";
     if ($fcf_mw.helper_stfcf_cipher_cdt(config, [], ['alt_stcryptolib']) ||
         $fcf_mw.helper_stfcf_mess_auth_cdt(config, ['cmac'], ['alt_stcryptolib'])) {
-      /* console.log(`[INFO] helper_stfcf_aes_alt_stcryptolib return true`); */
+      console.debug(`helper_stfcf_aes_alt_stcryptolib return true`);
       result = true;
     } else {
-      /* console.log(`[INFO] helper_stfcf_aes_alt_stcryptolib return false`); */
+      console.debug(`helper_stfcf_aes_alt_stcryptolib return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether HAL-based AES-CCM alternative logic is enabled or not.
  * @param {mbedtls_hal_ccm_alt} config
  * @returns boolean
  */
 function helper_stfcf_aes_ccm_alt_hal ( config )  {
   let result = "";
     if (helper_stfcf_cipher_cdt(config, ['ccm'], ['alt_hal','kwe'])) {
+      console.debug(`helper_stfcf_aes_ccm_alt_hal return true`);
       result = true;
     } else {
+      console.debug(`helper_stfcf_aes_ccm_alt_hal return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether HAL-based AES-GCM alternative logic is enabled or not.
  * @param {mbedtls_hal_gcm_alt} config
  * @returns boolean
  */
 function helper_stfcf_aes_gcm_alt_hal ( config )  {
   let result = "";
     if (helper_stfcf_cipher_cdt(config, ['gcm'], ['alt_hal','kwe'])) {
+      console.debug(`helper_stfcf_aes_gcm_alt_hal return true`);
       result = true;
     } else {
+      console.debug(`helper_stfcf_aes_gcm_alt_hal return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether HAL-based SHA-1 or SHA-256 alternative logic is enabled or not.
  * @param {mbedtls_hal_sha1_alt or mbedtls_hal_sha256_alt} config
  * @returns boolean
  */
@@ -1412,14 +1434,17 @@ function helper_stfcf_sha1_sha256_alt_hal ( config )  {
          helper_stfcf_asym_sign_cdt(config, [], ['alt_hal', 'kwe']) ||
          helper_stfcf_mess_auth_cdt(config, ['hmac'], ['alt_hal', 'kwe']) ||
          helper_stfcf_hash_cdt(config, ['sha224','sha256'], ['alt_hal', 'kwe']))) {
+      console.debug(`helper_stfcf_sha1_sha256_alt_hal return true`);
       result = true;
     } else {
+      console.debug(`helper_stfcf_sha1_sha256_alt_hal return false`);
       result = false;
     }
   return result;
 }
 
 /**
+ * Checks whether HAL-based ECDH, ECDSA, ECP or RSA alternative logic is enabled or not.
  * @param {mbedtls_hal_ecdsa_alt or
  *         mbedtls_hal_ecdh_alt or
  *         mbedtls_hal_ecp_alt or
@@ -1431,8 +1456,10 @@ function helper_stfcf_ecdh_ecdsa_ecp_rsa_alt_hal ( config )  {
     if (helper_stfcf_key_agre_cdt(config, ['ecdh'], ['alt_hal','kwe']) ||
         helper_stfcf_asym_sign_cdt(config, [], ['alt_hal','kwe']) ||
         helper_stfcf_asym_encr_rsa_cdt(config, [], ['alt_hal'])) {
+      console.debug(`helper_stfcf_ecdh_ecdsa_ecp_rsa_alt_hal return true`);
       result = true;
     } else {
+      console.debug(`helper_stfcf_ecdh_ecdsa_ecp_rsa_alt_hal return false`);
       result = false;
     }
   return result;

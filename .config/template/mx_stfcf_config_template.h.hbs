@@ -43,15 +43,10 @@ extern "C" {
 #include STFCF_USER_CONFIG_FILE
 #endif /* STFCF_USER_CONFIG_FILE */
 
-{{#if (helper_stfcf_mbedtlsconfig_kwe_enabled @root.stfcf_configs) }}
-#define MBEDTLS_ALLOW_PRIVATE_ACCESS
-#include "kwe_psa_driver_key_management.h"
-
 /* Exported constants --------------------------------------------------------*/
+{{#if (helper_stfcf_mbedtlsconfig_kwe_enabled @root.stfcf_configs) }}
 #define STFCF_KEY_LOCATION PSA_CRYPTO_KWE_DRIVER_LOCATION
 {{else}}
-
-/* Exported constants --------------------------------------------------------*/
 #define STFCF_KEY_LOCATION PSA_KEY_LOCATION_LOCAL_STORAGE
 {{/if}}
 

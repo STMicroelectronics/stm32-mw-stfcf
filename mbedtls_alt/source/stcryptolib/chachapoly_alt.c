@@ -56,12 +56,6 @@
 void mbedtls_chachapoly_init(mbedtls_chachapoly_context *ctx)
 {
   (void)memset(ctx, 0, sizeof(mbedtls_chachapoly_context));
-
-  /* Init the STCryptoLib */
-  cmox_init_arg_t init_arg;
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  (void)cmox_initialize(&init_arg);
 }
 
 int mbedtls_chachapoly_setkey(mbedtls_chachapoly_context *ctx, const unsigned char key[32])

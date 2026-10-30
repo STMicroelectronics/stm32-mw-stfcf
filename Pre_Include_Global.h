@@ -23,14 +23,17 @@
 extern "C" {
 #endif
 
-// Device headers and defines
+/* origin-pack: STMicroelectronics::stfcf@3.0.0 */
+/* file-format: 1.0.0 */
+
+/* Device headers and defines */
 
 
 /* RTE Content */
-#if (CMSIS_USE_Security_STM32CubeMX2_Config_STFCF_1_0_0)
+#if (CMSIS_USE_Security_STFCF_PSA_API_1_0_0)
 /* Enabling global STFCF configuration file */
 #define MBEDTLS_CONFIG_FILE "mx_stfcf_config.h"
-#endif /* CMSIS_USE_Security_STM32CubeMX2_Config_STFCF_1_0_0 */
+#endif /* CMSIS_USE_Security_STFCF_PSA_API_1_0_0 */
 
 #ifdef __cplusplus
 }

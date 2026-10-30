@@ -2,9 +2,9 @@
   "type": "object",
   "$schema": "http://json-schema.org/draft-07/schema",
   "componentid": "Security::STM32CubeMX2 Config:STFCF",
-  "version": "0.3.3",
+  "version": "1.0.0",
   "copyright": "Copyright (c) 2026 STMicroelectronics.",
-  "grammarVersion": "3.8",
+  "grammarVersion": "3.8.0",
   "functions": [
     {
       "path": ".config/template/helpers/stfcf_helpers.js",
@@ -22,7 +22,7 @@
             "version": {
               "title": "Based on MbedTLS version",
               "type": "string",
-              "default": "3.6.5",
+              "default": "3.6.6",
               "actions": [
                 {
                   "type": "disable",
@@ -258,13 +258,8 @@
                       "actions": [
                         {
                           "type": "info",
-                          "condition": "!($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['!ctr', '!chachapoly'], []))",
-                          "message": "AES is used for PSA API initialization in DRBG-CTR mode."
-                        },
-                        {
-                          "type": "info",
-                          "condition": "($fcf_mw.helper_stfcf_cipher_cdt($core.basic, ['!ctr', '!chachapoly'], []))",
-                          "message": "AES is used for PSA API initialization and for CBC, ECB, and CTR cryptographic operations."
+                          "condition": "true",
+                          "message": "AES is used for PSA API initialization in DRBG-CTR mode, and for CBC, ECB, and CTR cryptographic operations."
                         },
                         {
                           "type": "include",
@@ -755,13 +750,8 @@
                         },
                         {
                           "type": "info",
-                          "condition": "!($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha256'], []))",
+                          "condition": "true",
                           "message": "Please enable HASH peripheral for PSA API initialization in DRBG-CTR and DRBG-HMAC mode."
-                        },
-                        {
-                          "type": "info",
-                          "condition": "($fcf_mw.helper_stfcf_hash_cdt($core.basic, ['sha256'], []))",
-                          "message": "Please enable HASH peripheral for PSA API initialization and digest operation."
                         }
                       ],
                       "oneOf": [
@@ -884,8 +874,8 @@
                         },
                         {
                           "type": "info",
-                          "condition": "($fcf_mw.helper_stfcf_random_cdt($core.basic, [], ['alt_stcryptolib']))",
-                          "message": "MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG enabler."
+                          "condition": "true",
+                          "message": "MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG enabler when selecting STCryptoLib as DRBG implementation."
                         }
                       ],
                       "oneOf": [
@@ -921,13 +911,8 @@
                       "actions": [
                         {
                           "type": "info",
-                          "message": "DRBG-CTR is recommended with hardware acceleration for vulnerability reasons. It enables AES and SHA-256 or SHA-512.",
-                          "condition": "$core.advanced.psa_init.drbg_mode == 'drbg_ctr'"
-                        },
-                        {
-                          "type": "info",
-                          "message": "Please enable DRBG-HMAC as an alternative mode. It enables SHA-256 or SHA-512.",
-                          "condition": "$core.advanced.psa_init.drbg_mode == 'drbg_hmac'"
+                          "condition": "true",
+                          "message": "DRBG-CTR is recommended with hardware acceleration for vulnerability reasons as it provides enhanced cryptographic strength. It enables AES and SHA-256 or SHA-512 for high-security operations. Alternatively, DRBG-HMAC mode supporting SHA-256 or SHA-512 hash algorithms."
                         },
                         {
                           "type": "warning",
@@ -973,7 +958,7 @@
                   "title": "MbedTLS elliptic curves selection",
                   "properties": {
                     "short_weierstrass_curves": {
-                      "title": "Short weierstrass curves",
+                      "title": "Short Weierstrass curves",
                       "description": "Supporting ECP, ECDH, ECDSA.",
                       "type": "object",
                       "properties": {
@@ -1085,7 +1070,7 @@
                       "description": "Enables symmetric key wrap using AES-CBC algorithm, by default symmetric keys are wrapped using AES-ECB algorithm."
                     },
                     "kwe_ecp_short_weierstrass": {
-                      "title": "Short weierstrass elliptic curve former key agreement",
+                      "title": "Short Weierstrass elliptic curve former key agreement",
                       "type": "boolean",
                       "default": false,
                       "description": "Use case: Public key export with ECC ECDSA."
@@ -1100,162 +1085,201 @@
           "title": "Resources allocation",
           "type": "object",
           "properties": {
-            "periph_alloc_for_rng": {
-              "title": "Peripheral allocation for random generation",
+            "hw_resources": {
+              "title": "Hardware resources",
               "type": "object",
-              "objectType": "bind.peripheral.config",
-              "description": "Applied on RNG when MbedTLS ALT HAL is selected.",
-              "criteria": {
-                "peripheralType": [
-                  "rng"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_rng?.selection",
-                  "message": "Please select the RNG instance in the Peripherals configuration panel. RNG is needed to initialize PSA Crypto API."
-                }
-              ]
-            },
-            "periph_alloc_for_aes": {
-              "title": "Peripheral allocation for AES",
-              "type": "object",
-              "objectType": "bind.peripheral.config",
-              "message": "Please select a device instance to proceed with the AES configuration.",
-              "criteria": {
-                "peripheralType": [
-                  "aes",
-                  "saes",
-                  "cryp"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "exclude",
-                  "condition": "(!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+              "properties": {
+                "periph_alloc_for_rng": {
+                  "title": "Peripheral allocation for random generation",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on RNG when MbedTLS ALT HAL is selected.",
+                  "criteria": {
+                    "peripheralType": [
+                      "rng"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "error",
+                      "condition": "(!$resourcesAllocation.hw_resources.periph_alloc_for_rng?.selection || (!$get('peripheral.isBound', 'RNG')))",
+                      "message": "Please activate RNG peripheral and select the RNG instance in the configuration panel. RNG is needed to initialize PSA Crypto API."
+                    }
+                  ]
                 },
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_aes?.selection",
-                  "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
-                }
-              ]
-            },
-            "periph_alloc_for_gcm": {
-              "title": "Peripheral allocation for GCM",
-              "type": "object",
-              "objectType": "bind.peripheral.config",
-              "message": "Please select a device instance to proceed with the GCM configuration.",
-              "criteria": {
-                "peripheralType": [
-                  "aes",
-                  "saes",
-                  "cryp"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "exclude",
-                  "condition": "($core.basic.implementations.gcm_impl != 'alt_hal' && $core.basic.implementations.gcm_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                "periph_alloc_for_aes": {
+                  "title": "Peripheral allocation for AES",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on AES when MbedTLS ALT HAL is selected.",
+                  "message": "Please select a device instance to proceed with the AES configuration.",
+                  "criteria": {
+                    "peripheralType": [
+                      "aes",
+                      "saes",
+                      "cryp"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "exclude",
+                      "condition": "($core.basic.implementations.aes_impl != 'alt_hal' && $core.basic.implementations.aes_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                    },
+                    {
+                      "type": "error",
+                      "condition": "!$resourcesAllocation.hw_resources.periph_alloc_for_aes?.selection",
+                      "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
+                    }
+                  ]
                 },
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_gcm?.selection",
-                  "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
-                }
-              ]
-            },
-            "periph_alloc_for_ccm": {
-              "title": "Peripheral allocation for CCM",
-              "type": "object",
-              "objectType": "bind.peripheral.config",
-              "message": "Please select a device instance to proceed with the CCM configuration.",
-              "criteria": {
-                "peripheralType": [
-                  "aes",
-                  "saes",
-                  "cryp"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "exclude",
-                  "condition": "($core.basic.implementations.ccm_impl != 'alt_hal' && $core.basic.implementations.ccm_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                "periph_alloc_for_gcm": {
+                  "title": "Peripheral allocation for GCM",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on GCM when MbedTLS ALT HAL is selected.",
+                  "message": "Please select a device instance to proceed with the GCM configuration.",
+                  "criteria": {
+                    "peripheralType": [
+                      "aes",
+                      "saes",
+                      "cryp"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "exclude",
+                      "condition": "($core.basic.implementations.gcm_impl != 'alt_hal' && $core.basic.implementations.gcm_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                    },
+                    {
+                      "type": "error",
+                      "condition": "!$resourcesAllocation.hw_resources.periph_alloc_for_gcm?.selection",
+                      "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
+                    }
+                  ]
                 },
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_ccm?.selection",
-                  "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
-                }
-              ]
-            },
-            "periph_alloc_for_hash": {
-              "title": "Peripheral allocation for HASH",
-              "type": "object",
-              "objectType": "bind.peripheral.config",
-              "description": "Applied on HASH when MbedTLS ALT HAL is selected.",
-              "criteria": {
-                "peripheralType": [
-                  "hash"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "exclude",
-                  "condition": "(!$get('peripheral.isBound', 'HASH'))",
-                  "message": "Please enable MbedTLS Alt HAL for at least one of the hashing algorithms (SHA1, SHA256, or SHA512) to proceed with the HASH peripheral allocation."
+                "periph_alloc_for_ccm": {
+                  "title": "Peripheral allocation for CCM",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on CCM when MbedTLS ALT HAL is selected.",
+                  "message": "Please select a device instance to proceed with the CCM configuration.",
+                  "criteria": {
+                    "peripheralType": [
+                      "aes",
+                      "saes",
+                      "cryp"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "exclude",
+                      "condition": "($core.basic.implementations.ccm_impl != 'alt_hal' && $core.basic.implementations.ccm_impl != 'kwe') || (!$get('peripheral.isBound', 'AES') && !$get('peripheral.isBound', 'SAES') && !$get('peripheral.isBound', 'CRYP'))"
+                    },
+                    {
+                      "type": "error",
+                      "condition": "!$resourcesAllocation.hw_resources.periph_alloc_for_ccm?.selection",
+                      "message": "Please select one of the available cryptographic instances (AES, SAES, or CRYP) to proceed with cipher operations."
+                    }
+                  ]
                 },
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_hash?.selection",
-                  "message": "Please select the HASH instance to proceed with HASH operations."
-                }
-              ]
-            },
-            "periph_alloc_for_pka": {
-              "title": "Peripheral allocation for PKA",
-              "type": "object",
-              "objectType": "bind.peripheral.config",
-              "description": "Applied on PKA when MbedTLS ALT HAL is selected.",
-              "criteria": {
-                "peripheralType": [
-                  "pka"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "exclude",
-                  "condition": "(!$get('peripheral.isBound', 'PKA'))"
+                "periph_alloc_for_hash": {
+                  "title": "Peripheral allocation for HASH",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on HASH when MbedTLS ALT HAL is selected.",
+                  "criteria": {
+                    "peripheralType": [
+                      "hash"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "exclude",
+                      "condition": "($core.basic.implementations.sha1_impl != 'alt_hal' && $core.basic.implementations.sha256_impl != 'alt_hal' && $core.basic.implementations.sha512_impl != 'alt_hal') || (!$get('peripheral.isBound', 'HASH'))",
+                      "message": "Please enable MbedTLS Alt HAL for at least one of the hashing algorithms (SHA1, SHA256, or SHA512) to proceed with the HASH peripheral allocation."
+                    },
+                    {
+                      "type": "error",
+                      "condition": "!$resourcesAllocation.hw_resources.periph_alloc_for_hash?.selection",
+                      "message": "Please select the HASH instance to proceed with HASH operations."
+                    }
+                  ]
                 },
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_pka?.selection",
-                  "message": "Please select the PKA instance to proceed with PKA operations."
-                }
-              ]
-            },
-            "periph_alloc_for_ccb": {
-              "title": "Peripheral allocation for CCB",
-              "type": "object",
-              "objectType": "bind.peripheral.config",
-              "description": "Applied on CCB when MbedTLS ALT HAL is selected.",
-              "criteria": {
-                "peripheralType": [
-                  "ccb"
-                ]
-              },
-              "actions": [
-                {
-                  "type": "include",
-                  "condition": "($get('peripheral.isBound', 'CCB')) && ($core.basic.implementations.ecdsa_impl == 'kwe' || $core.basic.implementations.rsa_impl == 'kwe' || $core.basic.implementations.ecdh_impl == 'kwe')"
+                "periph_alloc_for_pka": {
+                  "title": "Peripheral allocation for PKA",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on PKA when MbedTLS ALT HAL is selected.",
+                  "criteria": {
+                    "peripheralType": [
+                      "pka"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "exclude",
+                      "condition": "($core.basic.implementations.rsa_impl != 'alt_hal' && $core.basic.implementations.ecdsa_impl != 'alt_hal' && $core.basic.implementations.ecdh_impl != 'alt_hal' && $core.basic.implementations.rsa_impl != 'kwe' && $core.basic.implementations.ecdsa_impl != 'kwe' && $core.basic.implementations.ecdh_impl != 'kwe') || (!$get('peripheral.isBound', 'PKA'))"
+                    },
+                    {
+                      "type": "error",
+                      "condition": "!$resourcesAllocation.hw_resources.periph_alloc_for_pka?.selection",
+                      "message": "Please select the PKA instance to proceed with PKA operations."
+                    }
+                  ]
                 },
-                {
-                  "type": "error",
-                  "condition": "!$resourcesAllocation.periph_alloc_for_ccb?.selection",
-                  "message": "Please select the CCB instance to proceed with KWE operations."
+                "periph_alloc_for_ccb": {
+                  "title": "Peripheral allocation for CCB",
+                  "type": "object",
+                  "objectType": "bind.peripheral.config",
+                  "description": "Applied on CCB when MbedTLS ALT HAL is selected.",
+                  "criteria": {
+                    "peripheralType": [
+                      "ccb"
+                    ]
+                  },
+                  "actions": [
+                    {
+                      "type": "include",
+                      "condition": "($get('peripheral.isBound', 'CCB')) && ($core.basic.implementations.ecdsa_impl == 'kwe' || $core.basic.implementations.rsa_impl == 'kwe' || $core.basic.implementations.ecdh_impl == 'kwe')"
+                    },
+                    {
+                      "type": "error",
+                      "condition": "!$resourcesAllocation.hw_resources.periph_alloc_for_ccb?.selection",
+                      "message": "Please select the CCB instance to proceed with KWE operations."
+                    }
+                  ]
                 }
-              ]
+              }
+            },
+            "sw_resources": {
+              "title": "Software resources",
+              "type": "object",
+              "properties": {
+                "sw_alloc_stcryptolib": {
+                  "type": "string",
+                  "title": "Software allocation for STCryptoLib",
+                  "description": "Applied on STCryptoLib when MbedTLS ALT STCryptoLib is selected.",
+                  "default": "stcryptolib",
+                  "oneOf": [
+                    {
+                      "const": "stcryptolib",
+                      "title": "STCryptoLib",
+                      "description": "STCryptoLib enabled."
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "include",
+                      "condition": "($get('swproject.hasComponent', 'STM32CubeMX2 Config:STCryptoLib') && ($core.basic.implementations.aes_impl == 'alt_stcryptolib' || $core.basic.implementations.gcm_impl == 'alt_stcryptolib' || $core.basic.implementations.ccm_impl == 'alt_stcryptolib' || $core.basic.implementations.chachapoly_impl == 'alt_stcryptolib' || $core.basic.implementations.sha256_impl == 'alt_stcryptolib' || $core.basic.implementations.sha512_impl == 'alt_stcryptolib' || $core.basic.implementations.cmac_impl == 'alt_stcryptolib' || $core.basic.implementations.drbg_impl == 'alt_stcryptolib' || $core.basic.implementations.ecdh_impl == 'alt_stcryptolib' || $core.basic.implementations.ecdsa_impl == 'alt_stcryptolib' || $core.basic.implementations.rsa_impl == 'alt_stcryptolib'))"
+                    },
+                    {
+                      "type": "error",
+                      "condition": "$resourcesAllocation.sw_resources.sw_alloc_stcryptolib !='stcryptolib'",
+                      "message": "Please select the STCryptoLib instance to proceed with cryptographic operations."
+                    }
+                  ]
+                }
+              }
             }
           }
         }

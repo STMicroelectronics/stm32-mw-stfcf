@@ -58,15 +58,6 @@ int32_t DRBG_Init(void)
 {
   uint8_t dummy[4];
 
-  /* Init the StCryptoLib */
-  cmox_init_arg_t init_arg;
-
-  init_arg.target = CMOX_INIT_TARGET_AUTO;
-  init_arg.pArg = NULL;
-  if (cmox_initialize(&init_arg) != CMOX_INIT_SUCCESS)
-  {
-    return -1;
-  }
   pENTROPY = mx_stfcf_mbedtls_alt_hal_rng_gethandle();
 
   if (HAL_RNG_GenerateRandomNumber(pENTROPY, (uint32_t *)Entropy, ENTROPY_SIZE / 4, RNG_GENERATION_TIMEOUT) != HAL_OK)

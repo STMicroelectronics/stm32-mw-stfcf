@@ -28,7 +28,7 @@
 {{log "alt_hal_used_components_log:" (toJSON @root.alt_hal_used_components)~}}
 {{assign 'object_cxt' 'undefined'~}}
 
-{{~log "periph_alloc_for_aes_criteria_log" @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_aes.selection ~}}
+{{~log "periph_alloc_for_aes_criteria_log" @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection ~}}
 {{~log "drbg_mode" @root.instance_0.settings.parameters.core.advanced.psa_init.drbg_mode ~}}
 
 /**
@@ -93,7 +93,7 @@ extern "C" {
 {{#if (gt (length @root.Instance_aes) 0)~}}
 {{#if (or (helper_stfcf_aes_alt_hal @root.configs)
           (eq @root.instance_0.settings.parameters.core.advanced.psa_init.drbg_mode 'drbg_ctr'))~}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_aes.selection 'AES')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'AES')~}}
 {{#if (gt (length @root.aes_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_aes_gethandle {{@root.aes_labels.[0]}}_gethandle
 {{else~}}
@@ -102,7 +102,7 @@ extern "C" {
 {{/if}}
 {{/if}}
 {{#if (helper_stfcf_aes_ccm_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_ccm.selection 'AES')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_ccm.selection 'AES')~}}
 {{#if (gt (length @root.aes_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_aes_ccm_gethandle {{@root.aes_labels.[0]}}_gethandle
 {{else~}}
@@ -111,7 +111,7 @@ extern "C" {
 {{/if}}
 {{/if}}
 {{#if (helper_stfcf_aes_gcm_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_gcm.selection 'AES')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_gcm.selection 'AES')~}}
 {{#if (gt (length @root.aes_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_aes_gcm_gethandle {{@root.aes_labels.[0]}}_gethandle
 {{else~}}
@@ -123,7 +123,7 @@ extern "C" {
 {{#if (gt (length @root.Instance_saes) 0)~}}
 {{#if (or (helper_stfcf_aes_alt_hal @root.configs)
           (eq @root.instance_0.settings.parameters.core.advanced.psa_init.drbg_mode 'drbg_ctr'))~}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_aes.selection 'SAES')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'SAES')~}}
 {{#if (gt (length @root.saes_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_aes_gethandle {{@root.saes_labels.[0]}}_gethandle
 {{else~}}
@@ -132,7 +132,7 @@ extern "C" {
 {{/if}}
 {{/if}}
 {{#if (helper_stfcf_aes_ccm_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_ccm.selection 'SAES')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_ccm.selection 'SAES')~}}
 {{#if (gt (length @root.saes_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_aes_ccm_gethandle {{@root.saes_labels.[0]}}_gethandle
 {{else~}}
@@ -141,7 +141,7 @@ extern "C" {
 {{/if}}
 {{/if}}
 {{#if (helper_stfcf_aes_gcm_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_gcm.selection 'SAES')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_gcm.selection 'SAES')~}}
 {{#if (gt (length @root.saes_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_aes_gcm_gethandle {{@root.saes_labels.[0]}}_gethandle
 {{else~}}
@@ -159,7 +159,7 @@ extern "C" {
 {{log "cryp_labels_log" @root.data.[0].info.labels~}}
 {{#if (gt (length @root.Instance_cryp) 0)~}}
 {{#if (helper_stfcf_aes_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_aes.selection 'CRYP')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_aes.selection 'CRYP')~}}
 {{#if (gt (length @root.cryp_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_cryp_gethandle {{@root.cryp_labels.[0]}}_gethandle
 {{else~}}
@@ -168,7 +168,7 @@ extern "C" {
 {{/if}}
 {{/if}}
 {{#if (helper_stfcf_aes_ccm_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_ccm.selection 'CRYP')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_ccm.selection 'CRYP')~}}
 {{#if (gt (length @root.cryp_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_cryp_ccm_gethandle {{@root.cryp_labels.[0]}}_gethandle
 {{else~}}
@@ -177,7 +177,7 @@ extern "C" {
 {{/if}}
 {{/if}}
 {{#if (helper_stfcf_aes_gcm_alt_hal @root.configs)}}
-{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.periph_alloc_for_gcm.selection 'CRYP')~}}
+{{#if (eq @root.instance_0.settings.parameters.resourcesAllocation.hw_resources.periph_alloc_for_gcm.selection 'CRYP')~}}
 {{#if (gt (length @root.cryp_labels) 0)~}}
 #define mx_stfcf_mbedtls_alt_hal_cryp_gcm_gethandle {{@root.cryp_labels.[0]}}_gethandle
 {{else~}}
